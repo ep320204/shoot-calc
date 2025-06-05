@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo & Video Shoot Cost Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        /* Custom styles for the message box */
+        #message-box {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f0fdf4;
+            color: #15803d;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #16a34a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        #message-box.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-inter">
+    <div class="container mx-auto p-6 sm:p-10 md:p-12 lg:p-16">
+        <h1 class="text-3xl font-semibold text-blue-600 text-center mb-8">Photo & Video Shoot Cost Calculator</h1>
+
+        <div id="message-box" class="hidden"></div>
+
+        <form id="cost-calculator-form" class="bg-white shadow-md rounded-lg p-6 space-y-4 sm:space-y-6">
+            <div>
+                <label for="shoot-category" class="block text-gray-700 text-sm font-bold mb-2">Shoot Category:</label>
+                <select id="shoot-category" name="shoot-category" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Editorial">Editorial</option>
+                    <option value="Branded">Branded</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="shoot-subcategory" class="block text-gray-700 text-sm font-bold mb-2">Shoot Subcategory:</label>
+                <select id="shoot-subcategory" name="shoot-subcategory" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Subcategory</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="talent-type" class="block text-gray-700 text-sm font-bold mb-2">Talent Type:</label>
+                <select id="talent-type" name="talent-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Talent Type</option>
+                    <option value="Celebrity">Celebrity</option>
+                    <option value="A-List">A-List</option>
+                    <option value="Model">Model</option>
+                    <option value="Influencer">Influencer</option>
+                    <option value="Editor">Editor</option>
+                    <option value="NA">N/A</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="base-duration" class="block text-gray-700 text-sm font-bold mb-2">Base Duration (Days):</label>
+                <input type="number" id="base-duration" name="base-duration" min="0" value="1" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div>
+                <label for="location" class="block text-gray-700 text-sm font-bold mb-2">Location:</label>
+                <select id="location" name="location" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Location</option>
+                    <option value="LA">LA</option>
+                    <option value="NYC">NYC</option>
+                    <option value="Miami">Miami</option>
+                    <option value="Other US">Other US</option>
+                    <option value="International">International</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="base-crew" class="block text-gray-700 text-sm font-bold mb-2">Base Number of Talent:</label>
+                <input type="number" id="base-crew" name="base-crew" min="0" value="1" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div>
+                <label for="styling-type" class="block text-gray-700 text-sm font-bold mb-2">Styling Type:</label>
+                <select id="styling-type" name="styling-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Styling Type</option>
+                    <option value="freelance">Freelance</option>
+                    <option value="in-house">In-house</option>
+                    <option value="market-only">Market Only</option>
+                </select>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" id="video-needed" name="video-needed" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                <label for="video-needed" class="block text-gray-700 text-sm font-bold">Video Needed?</label>
+            </div>
+
+            <div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="retouching-freelance" name="retouching-freelance" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="retouching-freelance" class="block text-gray-700 text-sm font-bold">Retouching Freelance?</label>
+                </div>
+                <div id="num-images-container" class="mt-2" style="display: none;">
+                    <label for="num-images" class="block text-gray-700 text-sm font-bold mb-2">Estimated Number of Images:</label>
+                    <input type="number" id="num-images" name="num-images" min="0" value="0" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+            </div>
+
+            <div>
+                <label for="num-glam-artists" class="block text-gray-700 text-sm font-bold mb-2">Number of Glam Artists:</label>
+                <input type="number" id="num-glam-artists" name="num-glam-artists" min="0" value="0" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+
+            <div>
+                <label for="usage-rights" class="block text-gray-700 text-sm font-bold mb-2">Usage Rights:</label>
+                <select id="usage-rights" name="usage-rights" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Usage Rights</option>
+                    <option value="editorial">Editorial Use</option>
+                    <option value="sponsored-editorial">Sponsored Editorial</option>
+                    <option value="assignment">Exclusive Rights</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="production-tier" class="block text-gray-700 text-sm font-bold mb-2">Overall Production Tier:</label>
+                <select id="production-tier" name="production-tier" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Production Tier</option>
+                    <option value="low">Low</option>
+                    <option value="mid">Mid</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+
+            <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-md shadow-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out w-full">
+                Calculate Cost
+            </button>
+        </form>
+
+        <div id="results" class="mt-8 p-6 bg-white rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-green-600 mb-4">Estimated Cost:</h2>
+            <p id="cost" class="text-xl text-gray-800 font-semibold">$0</p>
+        </div>
+    </div>
+
+    <script>
+        const costCalculatorForm = document.getElementById('cost-calculator-form');
+        const costDisplay = document.getElementById('cost');
+        const messageBox = document.getElementById('message-box');
+        const retouchingFreelanceCheckbox = document.getElementById('retouching-freelance');
+        const numImagesContainer = document.getElementById('num-images-container');
+        const numImagesInput = document.getElementById('num-images');
+
+        const shootCategorySelect = document.getElementById('shoot-category');
+        const shootSubcategorySelect = document.getElementById('shoot-subcategory');
+        const talentTypeSelect = document.getElementById('talent-type');
+
+
+        // Define subcategories based on main category
+        const subcategories = {
+            "Editorial": ["Cover", "Story", "Portrait", "Spotlight", "Still-Life"],
+            "Branded": ["Regular-Client", "High-Touch-Client", "Still-Life"]
+        };
+
+        // Event listener for main shoot category dropdown to populate subcategories
+        shootCategorySelect.addEventListener('change', () => {
+            const selectedCategory = shootCategorySelect.value;
+            populateSubcategories(selectedCategory);
+        });
+
+        function populateSubcategories(category) {
+            // Clear existing options
+            shootSubcategorySelect.innerHTML = '<option value="" disabled selected>Select Subcategory</option>';
+            shootSubcategorySelect.disabled = true; // Disable until a category is chosen
+
+            if (category && subcategories[category]) {
+                subcategories[category].forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub; // Value will be just the subcategory name
+                    option.textContent = sub;
+                    shootSubcategorySelect.appendChild(option);
+                });
+                shootSubcategorySelect.disabled = false; // Enable subcategory dropdown
+            }
+        }
+
+
+        // Toggle visibility of Number of Images field based on checkbox
+        retouchingFreelanceCheckbox.addEventListener('change', () => {
+            if (retouchingFreelanceCheckbox.checked) {
+                numImagesContainer.style.display = 'block';
+                numImagesInput.setAttribute('required', 'true'); // Make it required if visible
+            } else {
+                numImagesContainer.style.display = 'none';
+                numImagesInput.removeAttribute('required'); // Remove required if hidden
+                numImagesInput.value = 0; // Reset value when hidden
+            }
+        });
+
+
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-md ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-400' : 'bg-red-100 text-red-700 border steel-red-400'}`;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        costCalculatorForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            // Retrieve values from the form
+            const shootCategory = document.getElementById('shoot-category').value;
+            const shootSubcategory = document.getElementById('shoot-subcategory').value;
+            // Combine category and subcategory to form the "shootType" string used in existing logic
+            const shootType = `${shootCategory}-${shootSubcategory}`;
+
+            const talentType = document.getElementById('talent-type').value;
+            const baseDuration = parseFloat(document.getElementById('base-duration').value);
+            const location = document.getElementById('location').value;
+            const baseCrew = parseFloat(document.getElementById('base-crew').value);
+            const stylingType = document.getElementById('styling-type').value;
+            const videoNeeded = document.getElementById('video-needed').checked;
+            const retouchingFreelance = retouchingFreelanceCheckbox.checked;
+            const numImages = parseFloat(numImagesInput.value);
+            const numGlamArtists = parseFloat(document.getElementById('num-glam-artists').value);
+            const usageRights = document.getElementById('usage-rights').value;
+            const productionTier = document.getElementById('production-tier').value;
+
+            // Validate all fields
+            if (!shootCategory || !shootSubcategory || !talentType || isNaN(baseDuration) || !location ||
+                isNaN(baseCrew) || !stylingType || !usageRights || isNaN(numGlamArtists) || !productionTier ||
+                (retouchingFreelance && isNaN(numImages))) {
+                showMessage('Please fill in all the fields correctly.', 'error');
+                return;
+            }
+
+            let baseCostPerDay = 0;
+            let crewCostPerUnitPerDay = 1000; // Base cost per crew member per day
+            let glamArtistCostPerDay = 500;
+
+            let locationMultiplier = 1;
+            let stylingCost = 0;
+            let videoCost = 0;
+            let retouchingCost = 0;
+            let glamArtistTotalCost = 0;
+            let productionTierMultiplier = 1;
+            let talentNumberMultiplier = 1;
+
+
+            // Hardcoded values for baseCostPerDay based on combined shootType
+            switch (shootType) {
+                case 'Editorial-Cover':
+                    baseCostPerDay = 5000;
+                    break;
+                case 'Editorial-Story':
+                    baseCostPerDay = 5000;
+                    break;
+                case 'Editorial-Portrait':
+                    baseCostPerDay = 0;
+                    break;
+                case 'Editorial-Spotlight':
+                    baseCostPerDay = 2500;
+                    break;
+                case 'Editorial-Still-Life':
+                    baseCostPerDay = 3000;
+                    break;
+                case 'Branded-Regular-Client':
+                    baseCostPerDay = 5000;
+                    break;
+                case 'Branded-High-Touch-Client':
+                    baseCostPerDay = 7000;
+                    break;
+                case 'Branded-Still-Life':
+                    baseCostPerDay = 4000;
+                    break;
+                default:
+                    showMessage('Error: Shoot type combination not recognized.', 'error');
+                    return;
+            }
+
+            // Adjust baseCostPerDay based on talentType
+            switch (talentType) {
+                case 'Celebrity':
+                    baseCostPerDay *= 1.2;
+                    crewCostPerUnitPerDay *= 1.2;
+                    break;
+                case 'A-List':
+                    baseCostPerDay *= 1.5;
+                    crewCostPerUnitPerDay *= 1.5;
+                    break;
+                case 'Model': // Specific value for Model
+                    baseCostPerDay = 5000; // Direct set to 5000
+                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                    break;
+                case 'Influencer': // Specific value for Influencer
+                    baseCostPerDay = 7000; // Direct set to 7000
+                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                    break;
+                case 'Editor': // Specific value for Editor
+                    baseCostPerDay = 1000; // Direct set to 1000
+                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                    break;
+                case 'N/A':
+                    baseCostPerDay *= 0.05;
+                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                    break;
+            }
+
+            // Adjust crewCostPerUnitPerDay based on baseNumberofTalent (talent quantity)
+            if (baseCrew >= 1 && baseCrew <= 2) {
+                talentNumberMultiplier = 1.2;
+            } else if (baseCrew >= 3 && baseCrew <= 5) {
+                talentNumberMultiplier = 1.0;
+            } else if (baseCrew >= 6 && baseCrew <= 10) {
+                talentNumberMultiplier = 0.9;
+            } else if (baseCrew > 10) {
+                talentNumberMultiplier = 0.8;
+            }
+            crewCostPerUnitPerDay *= talentNumberMultiplier; // Apply this multiplier to the (potentially reset) crewCostPerUnitPerDay
+
+
+            // Adjust based on location
+            switch (location) {
+                case 'LA':
+                    locationMultiplier = 1.1;
+                    break;
+                case 'NYC':
+                    locationMultiplier = 1.2;
+                    break;
+                case 'Miami':
+                    locationMultiplier = 1.05;
+                    break;
+                case 'Other US':
+                    locationMultiplier = 1.0;
+                    break;
+                case 'International':
+                    locationMultiplier = 1.3;
+                    break;
+            }
+
+            // Add styling cost if freelance, increasing per shoot day
+            if (stylingType === 'freelance') {
+                stylingCost = 3500 * (baseDuration + 1);
+            } else if (stylingType === 'market-only') {
+                stylingCost = 400; // Fixed cost for Market Only
+            }
+
+
+            // Add video cost if video is needed, based on shoot type
+            if (videoNeeded) {
+                switch (shootType) {
+                    case 'Editorial-Cover':
+                    case 'Editorial-Story':
+                    case 'Branded-Regular-Client':
+                        videoCost = 6500;
+                        break;
+                    case 'Editorial-Portrait':
+                        videoCost = 800;
+                        break;
+                    case 'Branded-High-Touch-Client':
+                        videoCost = 8000;
+                        break;
+                }
+            }
+
+            // Add retouching cost if freelance
+            if (retouchingFreelance) {
+                retouchingCost = numImages * 150;
+            }
+
+            // Calculate glam artist cost based on number of artists and duration
+            glamArtistTotalCost = numGlamArtists * glamArtistCostPerDay * (baseDuration + 1);
+
+            // Set production tier multiplier
+            switch (productionTier) {
+                case 'low':
+                    productionTierMultiplier = 0.75;
+                    break;
+                case 'mid':
+                    productionTierMultiplier = 1;
+                    break;
+                case 'high':
+                    productionTierMultiplier = 1.5;
+                    break;
+            }
+
+            let usageRightsMultiplier = 1;
+
+            switch (usageRights) {
+                case 'editorial':
+                    usageRightsMultiplier = 1;
+                    break;
+                case 'sponsored-editorial':
+                    usageRightsMultiplier = 1.25;
+                    break;
+                case 'assignment':
+                    usageRightsMultiplier = 1.5;
+                    break;
+            }
+
+            // Calculate costs:
+            const totalShootDays = baseDuration + 1;
+            
+            // Total base shoot cost scaled by days (baseCostPerDay already adjusted by talent type, now it's multiplied by total days)
+            const totalBaseShootCost = baseCostPerDay * totalShootDays;
+            
+            // Total cost for talent/crew (baseCrew * crewCostPerUnitPerDay, where crewCostPerUnitPerDay reflects initial base and talentNumberMultiplier)
+            const totalTalentCrewCost = (baseCrew * crewCostPerUnitPerDay) * totalShootDays;
+
+
+            let totalCost = (totalBaseShootCost + totalTalentCrewCost + stylingCost + videoCost + retouchingCost + glamArtistTotalCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
+
+            costDisplay.textContent = `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            showMessage('Cost calculated successfully!', 'success');
+        });
+
+        // Initialize subcategories dropdown state
+        populateSubcategories(shootCategorySelect.value);
+    </script>
+</body>
+</html>
