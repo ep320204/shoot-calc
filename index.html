@@ -3,627 +3,576 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo & Video Shoot Cost Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <title>Interactive Photo & Video Shoot Cost Calculator</title>
+    <!-- Chosen Palette: Professional (Gray, Blue, Green) -->
+    <!-- Application Structure Plan: The SPA uses a single-column, top-to-bottom form structure, which is the most intuitive for a calculator-style application. The user logically proceeds from high-level shoot details to specific add-ons and final multipliers. Key interactive elements include a dynamic 'Shoot Subcategory' dropdown that populates based on the main 'Shoot Category' and conditional containers for 'Retouching' and 'Team Travel' that only only appear when selected. This prevents user confusion and keeps the UI clean. The flow is: User Input -> Calculation -> Result Display -> Optional Summary Download. This was chosen for its directness and simplicity, perfectly matching the task of generating a cost estimate. -->
+    <!-- Visualization & Content Choices: Report data is captured via interactive HTML form elements. GOAL: Capture categorical data -> METHOD: <select> dropdowns (e.g., Shoot Category, Talent Type). GOAL: Capture quantitative data -> METHOD: <input type="number"> (e.g., Base Duration, Number of Talent). GOAL: Capture binary choices -> METHOD: <input type="checkbox"> (e.g., Video Needed) and <input type="radio"> (e.g., Travel Type). GOAL: Display result -> METHOD: Update text content of a <p> tag. GOAL: Provide a take-away -> METHOD: JavaScript-generated text file download. This approach ensures all logic from the source document is implemented via user-friendly, standard web interactions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the message box */
-        #message-box {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #f0fdf4;
-            color: #15803d;
-            padding: 16px;
-            border-radius: 6px;
-            border: 1px solid #16a34a;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 10;
+        /* Custom font definitions for Tailwind */
+        .font-montserrat {
+            font-family: 'Montserrat', sans-serif;
         }
-        #message-box.show {
-            display: block;
+        .font-playfair-display {
+            font-family: 'Playfair Display', serif;
         }
-        /* Style for the container that toggles visibility */
+
+        body {
+            font-family: 'Montserrat', sans-serif; /* Changed default body font to Montserrat */
+        }
+        /* Removed specific h1 styles to rely on Tailwind classes */
+        h2 {
+            font-family: 'Montserrat', sans-serif; /* Subheader remains Montserrat */
+            font-weight: 400; /* Normal */
+        }
+
+        /* Explicitly set form elements to Montserrat for consistency */
+        label, select, input, button {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-checkbox:checked, .form-radio:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
         .toggle-container {
             border: 1px solid #e5e7eb; /* light gray border */
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 16px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
             background-color: #f9fafb; /* very light gray background */
         }
     </style>
 </head>
-<body class="bg-gray-100 font-inter">
-    <div class="container mx-auto p-6 sm:p-10 md:p-12 lg:p-16">
-        <h1 class="text-3xl font-semibold text-blue-600 text-center mb-8">Photo & Video Shoot Cost Calculator</h1>
+<body class="bg-gray-50 font-montserrat">
 
-        <div id="message-box" class="hidden"></div>
-
-        <form id="cost-calculator-form" class="bg-white shadow-md rounded-lg p-6 space-y-4 sm:space-y-6">
-            <div>
-                <label for="shoot-category" class="block text-gray-700 text-sm font-bold mb-2">Shoot Category:</label>
-                <select id="shoot-category" name="shoot-category" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Category</option>
-                    <option value="Editorial">Editorial</option>
-                    <option value="Branded">Branded</option>
-                </select>
+    <div class="container mx-auto max-w-4xl p-4 sm:p-8">
+        <header class="text-center mb-10">
+            <!-- Company Logos -->
+            <div class="flex justify-center items-center space-x-8 mb-4">
+                <img src="https://placehold.co/100x40/aabbcc/ffffff?text=Logo+1" alt="Company Logo 1" class="h-10 w-auto rounded-md">
+                <img src="https://placehold.co/100x40/ccddff/000000?text=Logo+2" alt="Company Logo 2" class="h-10 w-auto rounded-md">
             </div>
+            <h1 class="text-4xl text-gray-800 font-playfair-display uppercase">SHOOT COST CALCULATOR</h1>
+            <p class="text-base text-gray-600 mt-2 font-montserrat">An interactive tool to forecast production budgets based on key creative and logistical factors.</p>
+            <p class="mt-4 text-sm text-gray-500 font-montserrat">
+                <a href="https://docs.google.com/document/d/1zE7dWMQAXzvaZkgzb66RBSLF0FHjtkb7nS8MYcxwEp8/edit?usp=sharing" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline">View Calculation Logic (Read-Me)</a>
+            </p>
+        </header>
 
-            <div>
-                <label for="shoot-subcategory" class="block text-gray-700 text-sm font-bold mb-2">Shoot Subcategory:</label>
-                <select id="shoot-subcategory" name="shoot-subcategory" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Subcategory</option>
-                </select>
-            </div>
+        <main class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+            <form id="cost-calculator-form" class="space-y-6">
 
-            <div>
-                <label for="talent-type" class="block text-gray-700 text-sm font-bold mb-2">Talent Type:</label>
-                <select id="talent-type" name="talent-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Talent Type</option>
-                    <option value="Celebrity">Celebrity</option>
-                    <option value="A-List">A-List</option>
-                    <option value="Model">Model</option>
-                    <option value="Influencer">Influencer</option>
-                    <option value="Editor">Editor</option>
-                    <option value="NA">N/A</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="base-duration" class="block text-gray-700 text-sm font-bold mb-2">Base Duration (Days):</label>
-                <input type="number" id="base-duration" name="base-duration" min="0" value="1" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
-            <div>
-                <label for="location" class="block text-gray-700 text-sm font-bold mb-2">Location:</label>
-                <select id="location" name="location" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Location</option>
-                    <option value="LA">LA</option>
-                    <option value="NYC">NYC</option>
-                    <option value="Miami">Miami</option>
-                    <option value="Other US">Other US</option>
-                    <option value="International">International</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="location-type" class="block text-gray-700 text-sm font-bold mb-2">Location Type:</label>
-                <select id="location-type" name="location-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Location Type</option>
-                    <option value="Studio">Studio</option>
-                    <option value="Outdoor Location">Outdoor Location</option>
-                    <option value="Indoor Location">Indoor Location</option>
-                    <option value="Street Style">Street Style</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="base-crew" class="block text-gray-700 text-sm font-bold mb-2">Base Number of Talent:</label>
-                <input type="number" id="base-crew" name="base-crew" min="0" value="1" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
-            <div>
-                <label for="styling-type" class="block text-gray-700 text-sm font-bold mb-2">Styling Type:</label>
-                <select id="styling-type" name="styling-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Styling Type</option>
-                    <option value="freelance">Freelance</option>
-                    <option value="in-house">In-house</option>
-                    <option value="market-only">Market Only</option>
-                </select>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="video-needed" name="video-needed" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                <label for="video-needed" class="block text-gray-700 text-sm font-bold">Video Needed?</label>
-            </div>
-
-            <div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="retouching-freelance" name="retouching-freelance" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                    <label for="retouching-freelance" class="block text-gray-700 text-sm font-bold">Retouching Freelance?</label>
-                </div>
-                <div id="num-images-container" class="mt-2" style="display: none;">
-                    <label for="num-images" class="block text-gray-700 text-sm font-bold mb-2">Estimated Number of Images:</label>
-                    <input type="number" id="num-images" name="num-images" min="0" value="0" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
-            </div>
-
-            <div>
-                <label for="num-glam-artists" class="block text-gray-700 text-sm font-bold mb-2">Number of Glam Artists:</label>
-                <input type="number" id="num-glam-artists" name="num-glam-artists" min="0" value="0" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
-            <!-- Team Travel Section -->
-            <div class="toggle-container">
-                <div class="flex items-center space-x-2 mb-4">
-                    <input type="checkbox" id="team-travel-needed" name="team-travel-needed" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                    <label for="team-travel-needed" class="block text-gray-700 text-sm font-bold">Team Travel?</label>
-                </div>
-
-                <div id="travel-options-container" style="display: none;">
-                    <div class="mb-4">
-                        <label for="num-travelers" class="block text-gray-700 text-sm font-bold mb-2">Number of People Traveling:</label>
-                        <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-
-                    <div class="mb-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Travel Type:</label>
-                        <div class="flex items-center space-x-4">
-                            <input type="radio" id="travel-domestic" name="travel-type" value="domestic" class="form-radio h-4 w-4 text-blue-600">
-                            <label for="travel-domestic" class="text-gray-700">Domestic</label>
-
-                            <input type="radio" id="travel-international" name="travel-type" value="international" class="form-radio h-4 w-4 text-blue-600">
-                            <label for="travel-international" class="text-gray-700">International</label>
+                <!-- Shoot Details Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">1. Shoot Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="shoot-category" class="block text-sm font-medium text-gray-700 font-montserrat">Shoot Category</label>
+                            <select id="shoot-category" name="shoot-category" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select a Category...</option>
+                                <option value="Editorial">Editorial</option>
+                                <option value="Branded">Branded</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="shoot-subcategory" class="block text-sm font-medium text-gray-700 font-montserrat">Shoot Subcategory</label>
+                            <select id="shoot-subcategory" name="shoot-subcategory" required disabled class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select a Subcategory...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="base-duration" class="block text-sm font-medium text-gray-700 font-montserrat">Shoot Duration (Days)</label>
+                            <input type="number" id="base-duration" name="base-duration" min="0" value="1" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
                         </div>
                     </div>
                 </div>
+
+                <!-- Talent Details Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">2. Talent Details</h2>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="talent-type" class="block text-sm font-medium text-gray-700 font-montserrat">Primary Talent Type</label>
+                            <select id="talent-type" name="talent-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Talent...</option>
+                                <option value="Celebrity">Celebrity</option>
+                                <option value="A-List">A-List</option>
+                                <option value="Model">Model</option>
+                                <option value="Influencer">Influencer</option>
+                                <option value="Editor">Editor</option>
+                                <option value="NA">N/A</option>
+                            </select>
+                        </div>
+                        <div>
+                             <label for="base-crew" class="block text-sm font-medium text-gray-700 font-montserrat">Number of Talents</label>
+                             <input type="number" id="base-crew" name="base-crew" min="0" value="1" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Location Details Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">3. Location Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 font-montserrat">Geographic Location</label>
+                            <select id="location" name="location" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select a City/Region...</option>
+                                <option value="LA">LA</option>
+                                <option value="NYC">NYC</option>
+                                <option value="Miami">Miami</option>
+                                <option value="Other US">Other US</option>
+                                <option value="International">International</option>
+                            </select>
+                        </div>
+                        <div>
+                             <label for="location-type" class="block text-sm font-medium text-gray-700 font-montserrat">Venue Type</label>
+                             <select id="location-type" name="location-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Venue Type...</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Outdoor Location">Outdoor Location</option>
+                                <option value="Indoor Location">Indoor Location</option>
+                                <option value="Street Style">Street Style</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Add-ons Section -->
+                <div class="border-b pb-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">4. Production Add-ons</h2>
+                    <div class="space-y-6">
+                        <!-- Styling & Glam -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div>
+                                <label for="styling-type" class="block text-sm font-medium text-gray-700 font-montserrat">Styling</label>
+                                <select id="styling-type" name="styling-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                    <option value="" disabled selected>Select Styling Type...</option>
+                                    <option value="freelance">Freelance</option>
+                                    <option value="in-house">In-house</option>
+                                    <option value="market-only">Market Only</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="num-glam-artists" class="block text-sm font-medium text-gray-700 font-montserrat">Number of Glam Artists</label>
+                                <input type="number" id="num-glam-artists" name="num-glam-artists" min="0" value="0" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                            </div>
+                        </div>
+
+                        <!-- Video -->
+                        <div class="toggle-container">
+                            <div class="flex items-center space-x-2 mb-4">
+                                <input type="checkbox" id="video-needed" name="video-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
+                                <label for="video-needed" class="block text-sm font-medium text-gray-700 font-montserrat">Video Needed?</label>
+                            </div>
+                        </div>
+
+                        <!-- Retouching -->
+                        <div class="toggle-container">
+                            <div class="flex items-center space-x-2 mb-4">
+                                <input type="checkbox" id="retouching-freelance" name="retouching-freelance" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
+                                <label for="retouching-freelance" class="block text-sm font-medium text-gray-700 font-montserrat">Freelance Retouching?</label>
+                            </div>
+                            <div id="num-images-container" class="mt-2" style="display: none;">
+                                <label for="num-images" class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Number of Images</label>
+                                <input type="number" id="num-images" name="num-images" min="0" value="0" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                            </div>
+                        </div>
+
+                        <!-- Team Travel -->
+                        <div class="toggle-container">
+                             <div class="flex items-center space-x-2 mb-4">
+                                <input type="checkbox" id="team-travel-needed" name="team-travel-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
+                                <label for="team-travel-needed" class="block text-sm font-medium text-gray-700 font-montserrat">Team Travel Required?</label>
+                            </div>
+                            <div id="travel-options-container" class="mt-4 space-y-4" style="display: none;">
+                                <div>
+                                    <label for="num-travelers" class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Number of People Traveling</label>
+                                    <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" required class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                </div>
+                                <div>
+                                     <label class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Travel Type</label>
+                                     <div class="flex items-center space-x-4">
+                                        <div class="flex items-center">
+                                            <input type="radio" id="travel-domestic" name="travel-type" value="domestic" required class="form-radio h-4 w-4 text-indigo-600">
+                                            <label for="travel-domestic" class="ml-2 text-sm text-gray-700 font-montserrat">Domestic</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="radio" id="travel-international" name="travel-type" value="international" required class="form-radio h-4 w-4 text-indigo-600">
+                                            <label for="travel-international" class="ml-2 text-sm text-gray-700 font-montserrat">International</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Final Multipliers Section -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">5. Final Multipliers</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="usage-rights" class="block text-sm font-medium text-gray-700 font-montserrat">Usage Rights</label>
+                            <select id="usage-rights" name="usage-rights" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Usage Rights...</option>
+                                <option value="editorial">Editorial Use</option>
+                                <option value="sponsored-editorial">Sponsored Editorial</option>
+                                <option value="assignment">Exclusive Rights</option>
+                            </select>
+                        </div>
+                        <div>
+                             <label for="production-tier" class="block text-sm font-medium text-gray-700 font-montserrat">Overall Production Tier</label>
+                             <select id="production-tier" name="production-tier" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Production Tier...</option>
+                                <option value="low">Low</option>
+                                <option value="mid">Mid</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Submission Button -->
+                <div class="pt-5">
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-montserrat">
+                        Calculate Estimated Cost
+                    </button>
+                </div>
+            </form>
+        </main>
+
+        <!-- Results Section -->
+        <section id="results" class="mt-10 text-center">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                 <h2 class="text-lg font-medium text-gray-500 mb-2 font-montserrat">Estimated Cost Range</h2>
+                 <p id="cost" class="text-4xl sm:text-5xl font-bold text-gray-800 font-montserrat">$0 - $0</p>
+                 <p class="text-xs text-gray-500 mt-4 max-w-md mx-auto font-montserrat" id="disclaimer">This estimate should be used as a guide and is variable based on a number of other factors, including (but not limited to): creative concept, set design/prop needs, agency fees, and bespoke usage.</p>
+                 <button id="download-summary-btn" class="mt-6 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-montserrat">
+                    Download Summary
+                </button>
             </div>
-            <!-- End Team Travel Section -->
+        </section>
 
-            <div>
-                <label for="usage-rights" class="block text-gray-700 text-sm font-bold mb-2">Usage Rights:</label>
-                <select id="usage-rights" name="usage-rights" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Usage Rights</option>
-                    <option value="editorial">Editorial Use</option>
-                    <option value="sponsored-editorial">Sponsored Editorial</option>
-                    <option value="assignment">Exclusive Rights</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="production-tier" class="block text-gray-700 text-sm font-bold mb-2">Overall Production Tier:</label>
-                <select id="production-tier" name="production-tier" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="" disabled selected>Select Production Tier</option>
-                    <option value="low">Low</option>
-                    <option value="mid">Standard</option>
-                    <option value="high">High</option>
-                </select>
-            </div>
-
-            <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-md shadow-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out w-full">
-                Calculate Cost
-            </button>
-        </form>
-
-        <div id="results" class="mt-8 p-6 bg-white rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-green-600 mb-4">Estimated Cost:</h2>
-            <p id="cost" class="text-xl text-gray-800 font-semibold">$0</p>
-            <p class="text-sm text-gray-500 mt-2" id="disclaimer">This estimate should be used as a guide and is variable based on a number of other factors, including (but not limited to): creative concept, set design/prop needs, video complexity, agency fees, and bespoke usage.</p>
-        </div>
-        <button id="download-summary-btn" class="mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md shadow-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out w-full">
-            Download Summary
-        </button>
     </div>
 
+    <!-- JavaScript Logic -->
     <script>
-        const costCalculatorForm = document.getElementById('cost-calculator-form');
-        const costDisplay = document.getElementById('cost');
-        const messageBox = document.getElementById('message-box');
-        const downloadSummaryBtn = document.getElementById('download-summary-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const costCalculatorForm = document.getElementById('cost-calculator-form');
+            const costDisplay = document.getElementById('cost');
+            const downloadSummaryBtn = document.getElementById('download-summary-btn');
 
-        // Retouching elements
-        const retouchingFreelanceCheckbox = document.getElementById('retouching-freelance');
-        const numImagesContainer = document.getElementById('num-images-container');
-        const numImagesInput = document.getElementById('num-images');
-
-        // Shoot category elements
-        const shootCategorySelect = document.getElementById('shoot-category');
-        const shootSubcategorySelect = document.getElementById('shoot-subcategory');
-        const talentTypeSelect = document.getElementById('talent-type');
-
-
-        // Team Travel elements
-        const teamTravelNeededCheckbox = document.getElementById('team-travel-needed');
-        const travelOptionsContainer = document.getElementById('travel-options-container');
-        const numTravelersInput = document.getElementById('num-travelers');
-        const travelDomesticRadio = document.getElementById('travel-domestic');
-        const travelInternationalRadio = document.getElementById('travel-international');
-
-        // Location Type elements
-        const locationTypeSelect = document.getElementById('location-type');
-
-
-        // Define subcategories based on main category
-        const subcategories = {
-            "Editorial": ["Cover", "Story", "Portrait", "Spotlight", "Still-Life"],
-            "Branded": ["Regular-Client", "High-Touch-Client", "Still-Life"]
-        };
-
-        // Event listener for main shoot category dropdown to populate subcategories
-        shootCategorySelect.addEventListener('change', () => {
-            const selectedCategory = shootCategorySelect.value;
-            populateSubcategories(selectedCategory);
-        });
-
-        function populateSubcategories(category) {
-            // Clear existing options
-            shootSubcategorySelect.innerHTML = '<option value="" disabled selected>Select Subcategory</option>';
-            shootSubcategorySelect.disabled = true; // Disable until a category is chosen
-
-            if (category && subcategories[category]) {
-                subcategories[category].forEach(sub => {
-                    const option = document.createElement('option');
-                    option.value = sub; // Value will be just the subcategory name
-                    option.textContent = sub;
-                    shootSubcategorySelect.appendChild(option);
-                });
-                shootSubcategorySelect.disabled = false; // Enable subcategory dropdown
-            }
-        }
-
-        // Toggle visibility of Number of Images field based on retouching checkbox
-        retouchingFreelanceCheckbox.addEventListener('change', () => {
-            if (retouchingFreelanceCheckbox.checked) {
-                numImagesContainer.style.display = 'block';
-                numImagesInput.setAttribute('required', 'true');
-            } else {
-                numImagesContainer.style.display = 'none';
-                numImagesInput.removeAttribute('required');
-                numImagesInput.value = 0;
-            }
-        });
-
-        // Toggle visibility of travel options based on team travel checkbox
-        teamTravelNeededCheckbox.addEventListener('change', () => {
-            if (teamTravelNeededCheckbox.checked) {
-                travelOptionsContainer.style.display = 'block';
-                numTravelersInput.setAttribute('required', 'true');
-                travelDomesticRadio.setAttribute('required', 'true');
-                travelInternationalRadio.setAttribute('required', 'true');
-            } else {
-                travelOptionsContainer.style.display = 'none';
-                numTravelersInput.removeAttribute('required');
-                numTravelersInput.value = 1; // Reset to default
-                travelDomesticRadio.removeAttribute('required');
-                travelInternationalRadio.removeAttribute('required');
-                travelDomesticRadio.checked = false; // Uncheck radios
-                travelInternationalRadio.checked = false;
-            }
-        });
-
-
-        function showMessage(message, type = 'success') {
-            messageBox.textContent = message;
-            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-md ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-400' : 'bg-red-100 text-red-700 border border-red-400'}`;
-            messageBox.classList.add('show');
-            setTimeout(() => {
-                messageBox.classList.remove('show');
-            }, 3000);
-        }
-
-        // Variable to store the last calculated costs for summary download
-        let lastCalculatedSummaryData = {};
-
-        costCalculatorForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            // Retrieve values from the form
-            const shootCategory = document.getElementById('shoot-category').value;
-            const shootSubcategory = document.getElementById('shoot-subcategory').value;
-            const shootType = `${shootCategory}-${shootSubcategory}`;
-
-            const talentType = document.getElementById('talent-type').value;
-            const baseDuration = parseFloat(document.getElementById('base-duration').value);
-            const location = document.getElementById('location').value;
-            const locationType = document.getElementById('location-type').value;
-            const baseCrew = parseFloat(document.getElementById('base-crew').value);
-            const stylingType = document.getElementById('styling-type').value;
-            const videoNeeded = document.getElementById('video-needed').checked;
-            const retouchingFreelance = retouchingFreelanceCheckbox.checked;
-            const numImages = parseFloat(numImagesInput.value);
-            const numGlamArtists = parseFloat(document.getElementById('num-glam-artists').value);
-            const teamTravelNeeded = teamTravelNeededCheckbox.checked;
-            const numTravelers = parseFloat(numTravelersInput.value);
-            const travelType = document.querySelector('input[name="travel-type"]:checked')?.value;
+            const shootCategorySelect = document.getElementById('shoot-category');
+            const shootSubcategorySelect = document.getElementById('shoot-subcategory');
+            const talentTypeSelect = document.getElementById('talent-type');
             
-            const usageRights = document.getElementById('usage-rights').value;
-            const productionTier = document.getElementById('production-tier').value;
+            const retouchingFreelanceCheckbox = document.getElementById('retouching-freelance');
+            const numImagesContainer = document.getElementById('num-images-container');
+            const numImagesInput = document.getElementById('num-images');
 
-            // Validate all fields
-            if (!shootCategory || !shootSubcategory || !talentType || isNaN(baseDuration) || !location || !locationType ||
-                isNaN(baseCrew) || !stylingType || !usageRights || isNaN(numGlamArtists) || !productionTier ||
-                (retouchingFreelance && isNaN(numImages))) {
-                showMessage('Please fill in all the fields correctly.', 'error');
-                return;
-            }
-            // Additional validation for team travel if checked but no travel type selected
-            if (teamTravelNeeded && (isNaN(numTravelers) || !travelType)) {
-                showMessage('Please specify number of travelers and travel type for Team Travel.', 'error');
-                return;
-            }
-
-
-            let baseCostPerDay = 0;
-            let crewCostPerUnitPerDay = 1000;
-            let glamArtistCostPerDay = 500;
-
-            let locationMultiplier = 1;
-            let locationTypeMultiplier = 1;
-            let stylingCost = 0;
-            let videoCost = 0;
-            let retouchingCost = 0;
-            let glamArtistTotalCost = 0;
-            let teamTravelCost = 0;
-            let productionTierMultiplier = 1;
-            let talentNumberMultiplier = 1;
-
-            const AVG_LA_NYC_FLIGHT = 250; 
-            const AVG_LA_LONDON_FLIGHT = 450; 
-
-            switch (shootType) {
-                case 'Editorial-Cover':
-                    baseCostPerDay = 7000;
-                    break;
-                case 'Editorial-Story':
-                    baseCostPerDay = 5000;
-                    break;
-                case 'Editorial-Portrait':
-                    baseCostPerDay = 0;
-                    break;
-                case 'Editorial-Spotlight':
-                    baseCostPerDay = 4000;
-                    break;
-                case 'Editorial-Still-Life':
-                    baseCostPerDay = 3000;
-                    break;
-                case 'Branded-Regular-Client':
-                    baseCostPerDay = 5000;
-                    break;
-                case 'Branded-High-Touch-Client':
-                    baseCostPerDay = 7000;
-                    break;
-                case 'Branded-Still-Life':
-                    baseCostPerDay = 4000;
-                    break;
-                default:
-                    showMessage('Error: Shoot type combination not recognized.', 'error');
-                    return;
-            }
-
-            switch (talentType) {
-                case 'Celebrity':
-                    baseCostPerDay *= 1.3;
-                    crewCostPerUnitPerDay *= 1.3;
-                    break;
-                case 'A-List':
-                    baseCostPerDay *= 1.5;
-                    crewCostPerUnitPerDay *= 1.5;
-                    break;
-                case 'Model':
-                    baseCostPerDay = 5000; 
-                    crewCostPerUnitPerDay = 1000; 
-                    break;
-                case 'Influencer':
-                    baseCostPerDay = 7000; 
-                    crewCostPerUnitPerDay = 1000; 
-                    break;
-                case 'Editor':
-                    baseCostPerDay = 1000; 
-                    crewCostPerUnitPerDay = 1000; 
-                    break;
-                case 'N/A':
-                    baseCostPerDay *= 0.05;
-                    crewCostPerUnitPerDay = 1000; 
-                    break;
-            }
-
-            if (baseCrew >= 1 && baseCrew <= 2) {
-                talentNumberMultiplier = 1.2;
-            } else if (baseCrew >= 3 && baseCrew <= 5) {
-                talentNumberMultiplier = 1.0;
-            } else if (baseCrew >= 6 && baseCrew <= 10) {
-                talentNumberMultiplier = 0.9;
-            } else if (baseCrew > 10) {
-                talentNumberMultiplier = 0.8;
-            }
-            crewCostPerUnitPerDay *= talentNumberMultiplier;
-
-
-            switch (location) {
-                case 'LA':
-                    locationMultiplier = 1.1;
-                    break;
-                case 'NYC':
-                    locationMultiplier = 1.2;
-                    break;
-                case 'Miami':
-                    locationMultiplier = 1.05;
-                    break;
-                case 'Other US':
-                    locationMultiplier = 1.0;
-                    break;
-                case 'International':
-                    locationMultiplier = 1.3;
-                    break;
-            }
-
-            switch (locationType) {
-                case 'Studio':
-                    locationTypeMultiplier = 0.4;
-                    break;
-                case 'Outdoor Location':
-                    locationTypeMultiplier = 1.2;
-                    break;
-                case 'Indoor Location':
-                    locationTypeMultiplier = 1.1;
-                    break;
-                case 'Street Style':
-                    locationTypeMultiplier = 0.8;
-                    break;
-            }
-
-            let adjustedBaseCostPerDay = baseCostPerDay * locationTypeMultiplier;
-            let adjustedCrewCostPerUnitPerDay = crewCostPerUnitPerDay * locationTypeMultiplier;
-            let adjustedGlamArtistCostPerDay = glamArtistCostPerDay * locationTypeMultiplier;
-
-            if (stylingType === 'freelance') {
-                stylingCost = 3500 * (baseDuration + 1);
-            } else if (stylingType === 'market-only') {
-                stylingCost = 400;
-            }
-
-            if (videoNeeded) {
-                switch (shootType) {
-                    case 'Editorial-Cover':
-                    case 'Editorial-Story':
-                    case 'Branded-Regular-Client':
-                        videoCost = 6500;
-                        break;
-                    case 'Editorial-Portrait':
-                        videoCost = 800;
-                        break;
-                    case 'Branded-High-Touch-Client':
-                        videoCost = 8000;
-                        break;
-                }
-            } else {
-                videoCost = 0;
-            }
-
-            if (retouchingFreelance) {
-                retouchingCost = numImages * 150;
-            } else {
-                retouchingCost = 0;
-            }
+            const teamTravelNeededCheckbox = document.getElementById('team-travel-needed');
+            const travelOptionsContainer = document.getElementById('travel-options-container');
             
-            glamArtistTotalCost = numGlamArtists * adjustedGlamArtistCostPerDay * (baseDuration + 1);
-
-            if (teamTravelNeeded) {
-                if (travelType === 'domestic') {
-                    teamTravelCost = numTravelers * (AVG_LA_NYC_FLIGHT + 800);
-                } else if (travelType === 'international') {
-                    teamTravelCost = numTravelers * (AVG_LA_LONDON_FLIGHT + 1000);
-                }
-            } else {
-                teamTravelCost = 0;
-            }
-
-            switch (productionTier) {
-                case 'low':
-                    productionTierMultiplier = 0.75;
-                    break;
-                case 'mid':
-                    productionTierMultiplier = 1;
-                    break;
-                case 'high':
-                    productionTierMultiplier = 1.5;
-                    break;
-            }
-
-            let usageRightsMultiplier = 1;
-
-            switch (usageRights) {
-                case 'editorial':
-                    usageRightsMultiplier = 1;
-                    break;
-                case 'sponsored-editorial':
-                    usageRightsMultiplier = 1.25;
-                    break;
-                case 'assignment':
-                    usageRightsMultiplier = 1.5;
-                    break;
-            }
-
-            const totalShootDays = baseDuration + 1;
-            const dailyVariableCosts = (adjustedBaseCostPerDay + (baseCrew * adjustedCrewCostPerUnitPerDay)) * totalShootDays;
+            const numTravelersInput = document.getElementById('num-travelers');
+            const travelDomesticRadio = document.getElementById('travel-domestic');
+            const travelInternationalRadio = document.getElementById('travel-international');
+            const locationTypeSelect = document.getElementById('location-type');
 
 
-            let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
+            let lastCalculatedSummaryData = {};
 
-            // Store the raw totalCost and other details for summary download
-            lastCalculatedSummaryData = {
-                // Ensure all fields are correctly captured here for the summary
-                shootCategory: shootCategorySelect.options[shootCategorySelect.selectedIndex].text,
-                shootSubcategory: shootSubcategorySelect.options[shootSubcategorySelect.selectedIndex].text,
-                talentType: talentTypeSelect.options[talentTypeSelect.selectedIndex].text, // Fixed to use text
-                baseDuration: baseDuration,
-                location: document.getElementById('location').options[document.getElementById('location').selectedIndex].text, // Fixed to use text
-                locationType: locationTypeSelect.options[locationTypeSelect.selectedIndex].text, // Fixed to use text
-                baseCrew: baseCrew,
-                stylingType: document.getElementById('styling-type').options[document.getElementById('styling-type').selectedIndex].text, // Fixed to use text
-                videoNeeded: videoNeeded ? "Yes" : "No",
-                retouchingFreelance: retouchingFreelance ? "Yes" : "No",
-                numImages: retouchingFreelance ? numImages : 'N/A',
-                numGlamArtists: numGlamArtists,
-                teamTravelNeeded: teamTravelNeeded ? "Yes" : "No",
-                numTravelers: teamTravelNeeded ? numTravelers : 'N/A',
-                travelType: teamTravelNeeded && travelType ? document.querySelector(`label[for="travel-${travelType}"]`).textContent : 'N/A',
-                usageRights: document.getElementById('usage-rights').options[document.getElementById('usage-rights').selectedIndex].text, // Fixed to use text
-                productionTier: document.getElementById('production-tier').options[document.getElementById('production-tier').selectedIndex].text, // Fixed to use text
-                rawCalculatedCost: totalCost // Store the cost before rounding and range calculation
+            const subcategories = {
+                "Editorial": ["Cover", "Story", "Portrait", "Spotlight", "Still-Life"],
+                "Branded": ["Regular-Client", "High-Touch-Client", "Still-Life"]
             };
 
+            shootCategorySelect.addEventListener('change', (e) => {
+                const selectedCategory = e.target.value;
+                shootSubcategorySelect.innerHTML = '<option value="" disabled selected>Select a Subcategory...</option>';
+                shootSubcategorySelect.disabled = true;
 
-            // Calculate range
-            const minCost = totalCost * 0.95; // -5%
-            const maxCost = totalCost * 1.05; // +5%
+                if (selectedCategory && subcategories[selectedCategory]) {
+                    subcategories[selectedCategory].forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub;
+                        option.textContent = sub;
+                        shootSubcategorySelect.appendChild(option);
+                    });
+                    shootSubcategorySelect.disabled = false;
+                }
+            });
 
-            // Round minCost and maxCost to the nearest 500 after calculating the range
-            const roundedMinCost = Math.round(minCost / 500) * 500;
-            const roundedMaxCost = Math.round(maxCost / 500) * 500;
+            retouchingFreelanceCheckbox.addEventListener('change', (e) => {
+                numImagesContainer.style.display = e.target.checked ? 'block' : 'none';
+                numImagesInput.required = e.target.checked;
+                if (!e.target.checked) numImagesInput.value = 0;
+            });
 
-            costDisplay.textContent = `$${roundedMinCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} - $${roundedMaxCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-            showMessage('Cost calculated successfully!', 'success');
+            teamTravelNeededCheckbox.addEventListener('change', (e) => {
+                travelOptionsContainer.style.display = e.target.checked ? 'block' : 'none';
+                if(numTravelersInput) numTravelersInput.required = e.target.checked;
+                if(travelDomesticRadio) travelDomesticRadio.required = e.target.checked;
+                if(travelInternationalRadio) travelInternationalRadio.required = e.target.checked;
+
+                 if (!e.target.checked) {
+                    if(numTravelersInput) numTravelersInput.value = 1;
+                    if(travelDomesticRadio) travelDomesticRadio.checked = false;
+                    if(travelInternationalRadio) travelInternationalRadio.checked = false;
+                }
+            });
+
+            const showMessage = (message, type = 'success') => {
+                const messageBox = document.createElement('div');
+                messageBox.textContent = message;
+                messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded shadow-md z-50 ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-400' : 'bg-red-100 text-red-700 border border-red-400'}`;
+                
+                messageBox.style.opacity = '1';
+                messageBox.style.transition = 'opacity 0.5s ease-out';
+
+                document.body.appendChild(messageBox);
+
+                setTimeout(() => {
+                    messageBox.style.opacity = '0';
+                    messageBox.addEventListener('transitionend', () => messageBox.remove());
+                }, 3000);
+            };
+
+            costCalculatorForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(costCalculatorForm);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Explicitly check for required fields and log which one is missing
+                const requiredFields = [
+                    { id: 'shoot-category', label: 'Shoot Category', value: data['shoot-category'] },
+                    { id: 'shoot-subcategory', label: 'Shoot Subcategory', value: data['shoot-subcategory'] },
+                    { id: 'talent-type', label: 'Primary Talent Type', value: data['talent-type'] },
+                    { id: 'base-duration', label: 'Shoot Duration (Days)', value: data['base-duration'], isNumeric: true },
+                    { id: 'location', label: 'Geographic Location', value: data.location },
+                    { id: 'location-type', label: 'Venue Type', value: data['location-type'] },
+                    { id: 'base-crew', label: 'Number of Talents', value: data['base-crew'], isNumeric: true },
+                    { id: 'styling-type', label: 'Styling', value: data['styling-type'] },
+                    { id: 'num-glam-artists', label: 'Number of Glam Artists', value: data['num-glam-artists'], isNumeric: true },
+                    { id: 'usage-rights', label: 'Usage Rights', value: data['usage-rights'] },
+                    { id: 'production-tier', label: 'Overall Production Tier', value: data['production-tier'] }
+                ];
+
+                for (const field of requiredFields) {
+                    if (!field.value || (field.isNumeric && isNaN(parseFloat(field.value)))) {
+                        console.error(`Validation failed: Missing or invalid value for ${field.label} (ID: ${field.id}). Current value: '${field.value}'`);
+                        showMessage(`Please fill in all the required fields correctly. Missing: ${field.label}`, 'error');
+                        return;
+                    }
+                }
+
+                // Conditional validation for retouching
+                const retouchingFreelance = document.getElementById('retouching-freelance').checked;
+                if (retouchingFreelance && isNaN(parseFloat(data['num-images']))) {
+                    console.error('Validation failed: Number of Images is required for freelance retouching.');
+                    showMessage('Please enter Estimated Number of Images for Freelance Retouching.', 'error');
+                    return;
+                }
+
+                // Conditional validation for team travel
+                const teamTravelNeeded = document.getElementById('team-travel-needed').checked;
+                const numTravelers = parseFloat(data['num-travelers']);
+                const travelType = data['travel-type']; // This will be undefined if no radio is checked
+                if (teamTravelNeeded) {
+                    if (isNaN(numTravelers) || numTravelers <= 0) {
+                        console.error('Validation failed: Number of People Traveling is required and must be a positive number for Team Travel.');
+                        showMessage('Please enter a valid Number of People Traveling for Team Travel.', 'error');
+                        return;
+                    }
+                    if (!travelType) {
+                        console.error('Validation failed: Travel Type (Domestic/International) is required for Team Travel.');
+                        showMessage('Please select Travel Type (Domestic or International) for Team Travel.', 'error');
+                        return;
+                    }
+                }
+                
+                let baseCostPerDay = 0;
+                let crewCostPerUnitPerDay = 1000;
+                let glamArtistCostPerDay = 500;
+                let locationMultiplier = 1;
+                let locationTypeMultiplier = 1;
+                let stylingCost = 0;
+                let videoCost = 0;
+                let retouchingCost = 0;
+                let glamArtistTotalCost = 0;
+                let teamTravelCost = 0;
+                let productionTierMultiplier = 1;
+                let talentNumberMultiplier = 1;
+                let usageRightsMultiplier = 1;
+
+                const AVG_LA_NYC_FLIGHT = 250;
+                const AVG_LA_LONDON_FLIGHT = 450;
+
+                switch (shootType) {
+                    case 'Editorial-Cover': baseCostPerDay = 7000; break;
+                    case 'Editorial-Story': baseCostPerDay = 5000; break;
+                    case 'Editorial-Portrait': baseCostPerDay = 0; break;
+                    case 'Editorial-Spotlight': baseCostPerDay = 4000; break;
+                    case 'Editorial-Still-Life': baseCostPerDay = 3000; break;
+                    case 'Branded-Regular-Client': baseCostPerDay = 5000; break;
+                    case 'Branded-High-Touch-Client': baseCostPerDay = 7000; break;
+                    case 'Branded-Still-Life': baseCostPerDay = 4000; break;
+                }
+
+                switch (data['talent-type']) {
+                    case 'Celebrity': baseCostPerDay *= 1.3; crewCostPerUnitPerDay *= 1.3; break;
+                    case 'A-List': baseCostPerDay *= 1.5; crewCostPerUnitPerDay *= 1.5; break;
+                    case 'Model': baseCostPerDay = 5000; crewCostPerUnitPerDay = 1000; break;
+                    case 'Influencer': baseCostPerDay = 7000; crewCostPerUnitPerDay = 1000; break;
+                    case 'Editor': baseCostPerDay = 1000; crewCostPerUnitPerDay = 1000; break;
+                    case 'NA': baseCostPerDay *= 0.05; crewCostPerUnitPerDay = 1000; break;
+                }
+
+                const baseCrew = parseFloat(data['base-crew']);
+                if (baseCrew >= 1 && baseCrew <= 2) talentNumberMultiplier = 1.2;
+                else if (baseCrew >= 3 && baseCrew <= 5) talentNumberMultiplier = 1.0;
+                else if (baseCrew >= 6 && baseCrew <= 10) talentNumberMultiplier = 0.9;
+                else if (baseCrew > 10) talentNumberMultiplier = 0.8;
+                crewCostPerUnitPerDay *= talentNumberMultiplier;
+
+                switch (data.location) {
+                    case 'LA': locationMultiplier = 1.1; break;
+                    case 'NYC': locationMultiplier = 1.2; break;
+                    case 'Miami': locationMultiplier = 1.05; break;
+                    case 'Other US': locationMultiplier = 1.0; break;
+                    case 'International': locationMultiplier = 1.3; break;
+                }
+
+                switch (data['location-type']) {
+                    case 'Studio': locationTypeMultiplier = 0.5; break;
+                    case 'Outdoor Location': locationTypeMultiplier = 1.1; break;
+                    case 'Indoor Location': locationTypeMultiplier = 1.0; break;
+                    case 'Street Style': locationTypeMultiplier = 0.8; break;
+                }
+
+                const baseDuration = parseFloat(data['base-duration']);
+                const totalShootDays = baseDuration + 1;
+
+                let adjustedBaseCostPerDay = baseCostPerDay * locationTypeMultiplier;
+                let adjustedCrewCostPerUnitPerDay = crewCostPerUnitPerDay * locationTypeMultiplier;
+                let adjustedGlamArtistCostPerDay = glamArtistCostPerDay * locationTypeMultiplier;
+
+                if (data['styling-type'] === 'freelance') stylingCost = 3500 * totalShootDays;
+                else if (data['styling-type'] === 'market-only') stylingCost = 400;
+                
+                if (document.getElementById('video-needed').checked) {
+                    switch (shootType) {
+                        case 'Editorial-Cover': case 'Editorial-Story': case 'Branded-Regular-Client': videoCost = 6500; break;
+                        case 'Editorial-Portrait': videoCost = 800; break;
+                        case 'Branded-High-Touch-Client': videoCost = 8000; break;
+                    }
+                }
+                
+                if (retouchingFreelance) retouchingCost = parseFloat(data['num-images']) * 150;
+                
+                glamArtistTotalCost = parseFloat(data['num-glam-artists']) * adjustedGlamArtistCostPerDay * totalShootDays;
+
+                if (teamTravelNeeded) {
+                    if (data['travel-type'] === 'domestic') teamTravelCost = numTravelers * (AVG_LA_NYC_FLIGHT + 800);
+                    else if (data['travel-type'] === 'international') teamTravelCost = numTravelers * (AVG_LA_LONDON_FLIGHT + 1000);
+                }
+                
+                teamTravelCost *= locationTypeMultiplier;
+
+                switch (data['production-tier']) {
+                    case 'low': productionTierMultiplier = 0.75; break;
+                    case 'high': productionTierMultiplier = 1.5; break;
+                }
+
+                switch (data['usage-rights']) {
+                    case 'editorial': usageRightsMultiplier = 1; break;
+                    case 'sponsored-editorial': usageRightsMultiplier = 1.25; break;
+                    case 'assignment': usageRightsMultiplier = 1.5; break;
+                }
+
+                const dailyVariableCosts = (adjustedBaseCostPerDay + (baseCrew * adjustedCrewCostPerUnitPerDay)) * totalShootDays;
+                let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
+                
+                lastCalculatedSummaryData = {
+                    shootCategory: shootCategorySelect.options[shootCategorySelect.selectedIndex].text,
+                    shootSubcategory: shootSubcategorySelect.options[shootSubcategorySelect.selectedIndex].text,
+                    talentType: talentTypeSelect.options[talentTypeSelect.selectedIndex].text,
+                    baseDuration: baseDuration,
+                    location: document.getElementById('location').options[document.getElementById('location').selectedIndex].text,
+                    locationType: locationTypeSelect.options[locationTypeSelect.selectedIndex].text,
+                    baseCrew: baseCrew,
+                    stylingType: document.getElementById('styling-type').options[document.getElementById('styling-type').selectedIndex].text,
+                    videoNeeded: document.getElementById('video-needed').checked ? "Yes" : "No",
+                    retouchingFreelance: retouchingFreelance ? "Yes" : "No",
+                    numImages: retouchingFreelance ? parseFloat(data['num-images']) : 'N/A',
+                    numGlamArtists: parseFloat(data['num-glam-artists']),
+                    teamTravelNeeded: document.getElementById('team-travel-needed').checked ? "Yes" : "No",
+                    numTravelers: document.getElementById('team-travel-needed').checked ? parseFloat(data['num-travelers']) : 'N/A',
+                    travelType: document.getElementById('team-travel-needed').checked && document.querySelector('input[name="travel-type"]:checked') ? document.querySelector('input[name="travel-type"]:checked').nextElementSibling.textContent : 'N/A',
+                    usageRights: document.getElementById('usage-rights').options[document.getElementById('usage-rights').selectedIndex].text,
+                    productionTier: document.getElementById('production-tier').options[document.getElementById('production-tier').selectedIndex].text,
+                    rawCalculatedCost: totalCost
+                };
+
+                const roundedCenterCost = Math.round(totalCost / 500) * 500;
+                const minCost = Math.round((roundedCenterCost * 0.95) / 500) * 500;
+                const maxCost = Math.round((roundedCenterCost * 1.05) / 500) * 500;
+                
+                costDisplay.textContent = `$${minCost.toLocaleString('en-US')} - $${maxCost.toLocaleString('en-US')}`;
+            });
+
+            downloadSummaryBtn.addEventListener('click', () => {
+                if (!lastCalculatedSummaryData.rawCalculatedCost) {
+                    alert('Please calculate a cost first.');
+                    return;
+                }
+                
+                const { rawCalculatedCost } = lastCalculatedSummaryData;
+
+                const roundedCenterCost = Math.round(rawCalculatedCost / 500) * 500;
+                const minCost = Math.round((roundedCenterCost * 0.95) / 500) * 500;
+                const maxCost = Math.round((roundedCenterCost * 1.05) / 500) * 500;
+
+                let summaryContent = `# Photo & Video Shoot Cost Estimate Summary\n\n`;
+                summaryContent += `--- Your Selections ---\n`;
+                summaryContent += `Shoot Category: ${lastCalculatedSummaryData.shootCategory}\n`;
+                summaryContent += `Shoot Subcategory: ${lastCalculatedSummaryData.shootSubcategory}\n`;
+                summaryContent += `Talent Type: ${lastCalculatedSummaryData.talentType}\n`;
+                summaryContent += `Base Duration (Days): ${lastCalculatedSummaryData.baseDuration}\n`;
+                summaryContent += `Location (Geo): ${lastCalculatedSummaryData.location}\n`;
+                summaryContent += `Location Type: ${lastCalculatedSummaryData.locationType}\n`;
+                summaryContent += `Base Number of Talent: ${lastCalculatedSummaryData.baseCrew}\n`;
+                summaryContent += `Styling Type: ${lastCalculatedSummaryData.stylingType}\n`;
+                summaryContent += `Video Needed: ${lastCalculatedSummaryData.videoNeeded}\n`;
+                if(lastCalculatedSummaryData.retouchingFreelance === "Yes") summaryContent += `  - Estimated Number of Images: ${lastCalculatedSummaryData.numImages}\n`;
+                summaryContent += `Number of Glam Artists: ${lastCalculatedSummaryData.numGlamArtists}\n`;
+                summaryContent += `Team Travel Needed: ${lastCalculatedSummaryData.teamTravelNeeded}\n`;
+                if(lastCalculatedSummaryData.teamTravelNeeded === "Yes") {
+                    summaryContent += `  - Number of People Traveling: ${lastCalculatedSummaryData.numTravelers}\n`;
+                    summaryContent += `  - Travel Type: ${lastCalculatedSummaryData.travelType}\n`;
+                }
+                summaryContent += `Usage Rights: ${lastCalculatedSummaryData.usageRights}\n`;
+                summaryContent += `Overall Production Tier: ${lastCalculatedSummaryData.productionTier}\n\n`;
+                summaryContent += `--- Estimated Cost ---\n`;
+                summaryContent += `Cost Range: $${minCost.toLocaleString('en-US')} - $${maxCost.toLocaleString('en-US')}\n\n`;
+                summaryContent += `Disclaimer: ${document.getElementById('disclaimer').textContent}\n`;
+
+                const blob = new Blob([summaryContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Shoot_Estimate_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
         });
-
-        // Function to generate and download the summary
-        downloadSummaryBtn.addEventListener('click', () => {
-            if (!lastCalculatedSummaryData.rawCalculatedCost) {
-                showMessage('Please calculate a cost first before downloading a summary.', 'error');
-                return;
-            }
-
-            // Re-calculate the final displayed range for the summary to ensure consistency
-            const finalTotalCost = Math.round(lastCalculatedSummaryData.rawCalculatedCost / 500) * 500;
-            const finalMinCost = Math.round((finalTotalCost * 0.95) / 500) * 500;
-            const finalMaxCost = Math.round((finalTotalCost * 1.05) / 500) * 500;
-
-
-            let summaryContent = `# Photo & Video Shoot Cost Estimate Summary\n\n`;
-            summaryContent += `--- Your Selections ---\n`;
-            summaryContent += `Shoot Category: ${lastCalculatedSummaryData.shootCategory}\n`;
-            summaryContent += `Shoot Subcategory: ${lastCalculatedSummaryData.shootSubcategory}\n`;
-            summaryContent += `Talent Type: ${lastCalculatedSummaryData.talentType}\n`;
-            summaryContent += `Base Duration (Days): ${lastCalculatedSummaryData.baseDuration}\n`;
-            summaryContent += `Location (Geo): ${lastCalculatedSummaryData.location}\n`;
-            summaryContent += `Location Type: ${lastCalculatedSummaryData.locationType}\n`;
-            summaryContent += `Base Number of Talent: ${lastCalculatedSummaryData.baseCrew}\n`;
-            summaryContent += `Styling Type: ${lastCalculatedSummaryData.stylingType}\n`;
-            summaryContent += `Video Needed: ${lastCalculatedSummaryData.videoNeeded}\n`;
-            summaryContent += `Retouching Freelance: ${lastCalculatedSummaryData.retouchingFreelance}\n`;
-            if (lastCalculatedSummaryData.retouchingFreelance === "Yes") {
-                summaryContent += `  - Estimated Number of Images: ${lastCalculatedSummaryData.numImages}\n`;
-            }
-            summaryContent += `Number of Glam Artists: ${lastCalculatedSummaryData.numGlamArtists}\n`;
-            summaryContent += `Team Travel Needed: ${lastCalculatedSummaryData.teamTravelNeeded}\n`;
-            if (lastCalculatedSummaryData.teamTravelNeeded === "Yes") {
-                summaryContent += `  - Number of People Traveling: ${lastCalculatedSummaryData.numTravelers}\n`;
-                summaryContent += `  - Travel Type: ${lastCalculatedSummaryData.travelType}\n`;
-            }
-            summaryContent += `Usage Rights: ${lastCalculatedSummaryData.usageRights}\n`;
-            summaryContent += `Overall Production Tier: ${lastCalculatedSummaryData.productionTier}\n\n`;
-            summaryContent += `--- Estimated Cost --- \n`;
-            summaryContent += `Cost Range: $${finalMinCost.toLocaleString('en-US')} - $${finalMaxCost.toLocaleString('en-US')}\n\n`;
-            summaryContent += `Disclaimer: ${document.getElementById('disclaimer').textContent}\n`;
-
-
-            const filename = `Shoot_Estimate_${new Date().toLocaleDateString()}.txt`;
-            const blob = new Blob([summaryContent], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link); // Required for Firefox
-            link.click();
-            document.body.removeChild(link); // Clean up
-            URL.revokeObjectURL(link.href); // Release object URL
-
-            showMessage('Summary downloaded successfully!', 'success');
-        });
-
-        // Initialize subcategories dropdown state
-        populateSubcategories(shootCategorySelect.value);
     </script>
 </body>
 </html>
