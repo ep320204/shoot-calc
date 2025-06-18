@@ -52,8 +52,8 @@
         <header class="text-center mb-10">
             <!-- Company Logos -->
             <div class="flex justify-center items-center space-x-8 mb-4">
-                <img src="https://placehold.co/100x40/aabbcc/ffffff?text=Logo+1" alt="Company Logo 1" class="h-10 w-auto rounded-md">
-                <img src="https://placehold.co/100x40/ccddff/000000?text=Logo+2" alt="Company Logo 2" class="h-10 w-auto rounded-md">
+                <img src="https://ep320204.github.io/shoot-calc/MarieClaireLogo%20(1).jpg" alt="Marie Claire" class="h-10 w-auto rounded-md">
+                <img src="https://ep320204.github.io/shoot-calc/WWW-logo-black-on-white%20(1).jpg" alt="WWW" class="h-10 w-auto rounded-md">
             </div>
             <h1 class="text-4xl text-gray-800 font-playfair-display uppercase">SHOOT COST CALCULATOR</h1>
             <p class="text-base text-gray-600 mt-2 font-montserrat">An interactive tool to forecast production budgets based on key creative and logistical factors.</p>
@@ -107,7 +107,7 @@
                             </select>
                         </div>
                         <div>
-                             <label for="base-crew" class="block text-sm font-medium text-gray-700 font-montserrat">Number of Talents</label>
+                             <label for="base-crew" class="block text-sm font-medium text-gray-700 font-montserrat">Number of Talent</label>
                              <input type="number" id="base-crew" name="base-crew" min="0" value="1" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
                         </div>
                     </div>
@@ -129,9 +129,9 @@
                             </select>
                         </div>
                         <div>
-                             <label for="location-type" class="block text-sm font-medium text-gray-700 font-montserrat">Venue Type</label>
+                             <label for="location-type" class="block text-sm font-medium text-gray-700 font-montserrat">Location Type</label>
                              <select id="location-type" name="location-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
-                                <option value="" disabled selected>Select Venue Type...</option>
+                                <option value="" disabled selected>Select Location Type...</option>
                                 <option value="Studio">Studio</option>
                                 <option value="Outdoor Location">Outdoor Location</option>
                                 <option value="Indoor Location">Indoor Location</option>
@@ -355,8 +355,8 @@
                     { id: 'talent-type', label: 'Primary Talent Type', value: data['talent-type'] },
                     { id: 'base-duration', label: 'Shoot Duration (Days)', value: data['base-duration'], isNumeric: true },
                     { id: 'location', label: 'Geographic Location', value: data.location },
-                    { id: 'location-type', label: 'Venue Type', value: data['location-type'] },
-                    { id: 'base-crew', label: 'Number of Talents', value: data['base-crew'], isNumeric: true },
+                    { id: 'location-type', label: 'Location Type', value: data['location-type'] },
+                    { id: 'base-crew', label: 'Number of Talent', value: data['base-crew'], isNumeric: true },
                     { id: 'styling-type', label: 'Styling', value: data['styling-type'] },
                     { id: 'num-glam-artists', label: 'Number of Glam Artists', value: data['num-glam-artists'], isNumeric: true },
                     { id: 'usage-rights', label: 'Usage Rights', value: data['usage-rights'] },
