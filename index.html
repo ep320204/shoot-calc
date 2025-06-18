@@ -25,6 +25,14 @@
         #message-box.show {
             display: block;
         }
+        /* Style for the container that toggles visibility */
+        .toggle-container {
+            border: 1px solid #e5e7eb; /* light gray border */
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            background-color: #f9fafb; /* very light gray background */
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-inter">
@@ -81,6 +89,17 @@
             </div>
 
             <div>
+                <label for="location-type" class="block text-gray-700 text-sm font-bold mb-2">Location Type:</label>
+                <select id="location-type" name="location-type" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="" disabled selected>Select Location Type</option>
+                    <option value="Studio">Studio</option>
+                    <option value="Outdoor Location">Outdoor Location</option>
+                    <option value="Indoor Location">Indoor Location</option>
+                    <option value="Street Style">Street Style</option>
+                </select>
+            </div>
+
+            <div>
                 <label for="base-crew" class="block text-gray-700 text-sm font-bold mb-2">Base Number of Talent:</label>
                 <input type="number" id="base-crew" name="base-crew" min="0" value="1" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
@@ -116,6 +135,33 @@
                 <input type="number" id="num-glam-artists" name="num-glam-artists" min="0" value="0" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
+            <!-- Team Travel Section -->
+            <div class="toggle-container">
+                <div class="flex items-center space-x-2 mb-4">
+                    <input type="checkbox" id="team-travel-needed" name="team-travel-needed" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="team-travel-needed" class="block text-gray-700 text-sm font-bold">Team Travel?</label>
+                </div>
+
+                <div id="travel-options-container" style="display: none;">
+                    <div class="mb-4">
+                        <label for="num-travelers" class="block text-gray-700 text-sm font-bold mb-2">Number of People Traveling:</label>
+                        <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Travel Type:</label>
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" id="travel-domestic" name="travel-type" value="domestic" class="form-radio h-4 w-4 text-blue-600">
+                            <label for="travel-domestic" class="text-gray-700">Domestic</label>
+
+                            <input type="radio" id="travel-international" name="travel-type" value="international" class="form-radio h-4 w-4 text-blue-600">
+                            <label for="travel-international" class="text-gray-700">International</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Team Travel Section -->
+
             <div>
                 <label for="usage-rights" class="block text-gray-700 text-sm font-bold mb-2">Usage Rights:</label>
                 <select id="usage-rights" name="usage-rights" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -131,7 +177,7 @@
                 <select id="production-tier" name="production-tier" required class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     <option value="" disabled selected>Select Production Tier</option>
                     <option value="low">Low</option>
-                    <option value="mid">Mid</option>
+                    <option value="mid">Standard</option>
                     <option value="high">High</option>
                 </select>
             </div>
@@ -144,20 +190,39 @@
         <div id="results" class="mt-8 p-6 bg-white rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold text-green-600 mb-4">Estimated Cost:</h2>
             <p id="cost" class="text-xl text-gray-800 font-semibold">$0</p>
+            <p class="text-sm text-gray-500 mt-2" id="disclaimer">This estimate should be used as a guide and is variable based on a number of other factors, including (but not limited to): creative concept, set design/prop needs, video complexity, agency fees, and bespoke usage.</p>
         </div>
+        <button id="download-summary-btn" class="mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md shadow-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out w-full">
+            Download Summary
+        </button>
     </div>
 
     <script>
         const costCalculatorForm = document.getElementById('cost-calculator-form');
         const costDisplay = document.getElementById('cost');
         const messageBox = document.getElementById('message-box');
+        const downloadSummaryBtn = document.getElementById('download-summary-btn');
+
+        // Retouching elements
         const retouchingFreelanceCheckbox = document.getElementById('retouching-freelance');
         const numImagesContainer = document.getElementById('num-images-container');
         const numImagesInput = document.getElementById('num-images');
 
+        // Shoot category elements
         const shootCategorySelect = document.getElementById('shoot-category');
         const shootSubcategorySelect = document.getElementById('shoot-subcategory');
         const talentTypeSelect = document.getElementById('talent-type');
+
+
+        // Team Travel elements
+        const teamTravelNeededCheckbox = document.getElementById('team-travel-needed');
+        const travelOptionsContainer = document.getElementById('travel-options-container');
+        const numTravelersInput = document.getElementById('num-travelers');
+        const travelDomesticRadio = document.getElementById('travel-domestic');
+        const travelInternationalRadio = document.getElementById('travel-international');
+
+        // Location Type elements
+        const locationTypeSelect = document.getElementById('location-type');
 
 
         // Define subcategories based on main category
@@ -188,28 +253,48 @@
             }
         }
 
-
-        // Toggle visibility of Number of Images field based on checkbox
+        // Toggle visibility of Number of Images field based on retouching checkbox
         retouchingFreelanceCheckbox.addEventListener('change', () => {
             if (retouchingFreelanceCheckbox.checked) {
                 numImagesContainer.style.display = 'block';
-                numImagesInput.setAttribute('required', 'true'); // Make it required if visible
+                numImagesInput.setAttribute('required', 'true');
             } else {
                 numImagesContainer.style.display = 'none';
-                numImagesInput.removeAttribute('required'); // Remove required if hidden
-                numImagesInput.value = 0; // Reset value when hidden
+                numImagesInput.removeAttribute('required');
+                numImagesInput.value = 0;
+            }
+        });
+
+        // Toggle visibility of travel options based on team travel checkbox
+        teamTravelNeededCheckbox.addEventListener('change', () => {
+            if (teamTravelNeededCheckbox.checked) {
+                travelOptionsContainer.style.display = 'block';
+                numTravelersInput.setAttribute('required', 'true');
+                travelDomesticRadio.setAttribute('required', 'true');
+                travelInternationalRadio.setAttribute('required', 'true');
+            } else {
+                travelOptionsContainer.style.display = 'none';
+                numTravelersInput.removeAttribute('required');
+                numTravelersInput.value = 1; // Reset to default
+                travelDomesticRadio.removeAttribute('required');
+                travelInternationalRadio.removeAttribute('required');
+                travelDomesticRadio.checked = false; // Uncheck radios
+                travelInternationalRadio.checked = false;
             }
         });
 
 
         function showMessage(message, type = 'success') {
             messageBox.textContent = message;
-            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-md ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-400' : 'bg-red-100 text-red-700 border steel-red-400'}`;
+            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-md ${type === 'success' ? 'bg-green-100 text-green-700 border border-green-400' : 'bg-red-100 text-red-700 border border-red-400'}`;
             messageBox.classList.add('show');
             setTimeout(() => {
                 messageBox.classList.remove('show');
             }, 3000);
         }
+
+        // Variable to store the last calculated costs for summary download
+        let lastCalculatedSummaryData = {};
 
         costCalculatorForm.addEventListener('submit', (event) => {
             event.preventDefault();
@@ -217,46 +302,59 @@
             // Retrieve values from the form
             const shootCategory = document.getElementById('shoot-category').value;
             const shootSubcategory = document.getElementById('shoot-subcategory').value;
-            // Combine category and subcategory to form the "shootType" string used in existing logic
             const shootType = `${shootCategory}-${shootSubcategory}`;
 
             const talentType = document.getElementById('talent-type').value;
             const baseDuration = parseFloat(document.getElementById('base-duration').value);
             const location = document.getElementById('location').value;
+            const locationType = document.getElementById('location-type').value;
             const baseCrew = parseFloat(document.getElementById('base-crew').value);
             const stylingType = document.getElementById('styling-type').value;
             const videoNeeded = document.getElementById('video-needed').checked;
             const retouchingFreelance = retouchingFreelanceCheckbox.checked;
             const numImages = parseFloat(numImagesInput.value);
             const numGlamArtists = parseFloat(document.getElementById('num-glam-artists').value);
+            const teamTravelNeeded = teamTravelNeededCheckbox.checked;
+            const numTravelers = parseFloat(numTravelersInput.value);
+            const travelType = document.querySelector('input[name="travel-type"]:checked')?.value;
+            
             const usageRights = document.getElementById('usage-rights').value;
             const productionTier = document.getElementById('production-tier').value;
 
             // Validate all fields
-            if (!shootCategory || !shootSubcategory || !talentType || isNaN(baseDuration) || !location ||
+            if (!shootCategory || !shootSubcategory || !talentType || isNaN(baseDuration) || !location || !locationType ||
                 isNaN(baseCrew) || !stylingType || !usageRights || isNaN(numGlamArtists) || !productionTier ||
                 (retouchingFreelance && isNaN(numImages))) {
                 showMessage('Please fill in all the fields correctly.', 'error');
                 return;
             }
+            // Additional validation for team travel if checked but no travel type selected
+            if (teamTravelNeeded && (isNaN(numTravelers) || !travelType)) {
+                showMessage('Please specify number of travelers and travel type for Team Travel.', 'error');
+                return;
+            }
+
 
             let baseCostPerDay = 0;
-            let crewCostPerUnitPerDay = 1000; // Base cost per crew member per day
+            let crewCostPerUnitPerDay = 1000;
             let glamArtistCostPerDay = 500;
 
             let locationMultiplier = 1;
+            let locationTypeMultiplier = 1;
             let stylingCost = 0;
             let videoCost = 0;
             let retouchingCost = 0;
             let glamArtistTotalCost = 0;
+            let teamTravelCost = 0;
             let productionTierMultiplier = 1;
             let talentNumberMultiplier = 1;
 
+            const AVG_LA_NYC_FLIGHT = 250; 
+            const AVG_LA_LONDON_FLIGHT = 450; 
 
-            // Hardcoded values for baseCostPerDay based on combined shootType
             switch (shootType) {
                 case 'Editorial-Cover':
-                    baseCostPerDay = 5000;
+                    baseCostPerDay = 7000;
                     break;
                 case 'Editorial-Story':
                     baseCostPerDay = 5000;
@@ -265,7 +363,7 @@
                     baseCostPerDay = 0;
                     break;
                 case 'Editorial-Spotlight':
-                    baseCostPerDay = 2500;
+                    baseCostPerDay = 4000;
                     break;
                 case 'Editorial-Still-Life':
                     baseCostPerDay = 3000;
@@ -284,35 +382,33 @@
                     return;
             }
 
-            // Adjust baseCostPerDay based on talentType
             switch (talentType) {
                 case 'Celebrity':
-                    baseCostPerDay *= 1.2;
-                    crewCostPerUnitPerDay *= 1.2;
+                    baseCostPerDay *= 1.3;
+                    crewCostPerUnitPerDay *= 1.3;
                     break;
                 case 'A-List':
                     baseCostPerDay *= 1.5;
                     crewCostPerUnitPerDay *= 1.5;
                     break;
-                case 'Model': // Specific value for Model
-                    baseCostPerDay = 5000; // Direct set to 5000
-                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                case 'Model':
+                    baseCostPerDay = 5000; 
+                    crewCostPerUnitPerDay = 1000; 
                     break;
-                case 'Influencer': // Specific value for Influencer
-                    baseCostPerDay = 7000; // Direct set to 7000
-                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                case 'Influencer':
+                    baseCostPerDay = 7000; 
+                    crewCostPerUnitPerDay = 1000; 
                     break;
-                case 'Editor': // Specific value for Editor
-                    baseCostPerDay = 1000; // Direct set to 1000
-                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                case 'Editor':
+                    baseCostPerDay = 1000; 
+                    crewCostPerUnitPerDay = 1000; 
                     break;
                 case 'N/A':
                     baseCostPerDay *= 0.05;
-                    crewCostPerUnitPerDay = 1000; // Reset to base for calculation with talentNumberMultiplier
+                    crewCostPerUnitPerDay = 1000; 
                     break;
             }
 
-            // Adjust crewCostPerUnitPerDay based on baseNumberofTalent (talent quantity)
             if (baseCrew >= 1 && baseCrew <= 2) {
                 talentNumberMultiplier = 1.2;
             } else if (baseCrew >= 3 && baseCrew <= 5) {
@@ -322,10 +418,9 @@
             } else if (baseCrew > 10) {
                 talentNumberMultiplier = 0.8;
             }
-            crewCostPerUnitPerDay *= talentNumberMultiplier; // Apply this multiplier to the (potentially reset) crewCostPerUnitPerDay
+            crewCostPerUnitPerDay *= talentNumberMultiplier;
 
 
-            // Adjust based on location
             switch (location) {
                 case 'LA':
                     locationMultiplier = 1.1;
@@ -344,15 +439,31 @@
                     break;
             }
 
-            // Add styling cost if freelance, increasing per shoot day
+            switch (locationType) {
+                case 'Studio':
+                    locationTypeMultiplier = 0.4;
+                    break;
+                case 'Outdoor Location':
+                    locationTypeMultiplier = 1.2;
+                    break;
+                case 'Indoor Location':
+                    locationTypeMultiplier = 1.1;
+                    break;
+                case 'Street Style':
+                    locationTypeMultiplier = 0.8;
+                    break;
+            }
+
+            let adjustedBaseCostPerDay = baseCostPerDay * locationTypeMultiplier;
+            let adjustedCrewCostPerUnitPerDay = crewCostPerUnitPerDay * locationTypeMultiplier;
+            let adjustedGlamArtistCostPerDay = glamArtistCostPerDay * locationTypeMultiplier;
+
             if (stylingType === 'freelance') {
                 stylingCost = 3500 * (baseDuration + 1);
             } else if (stylingType === 'market-only') {
-                stylingCost = 400; // Fixed cost for Market Only
+                stylingCost = 400;
             }
 
-
-            // Add video cost if video is needed, based on shoot type
             if (videoNeeded) {
                 switch (shootType) {
                     case 'Editorial-Cover':
@@ -367,17 +478,28 @@
                         videoCost = 8000;
                         break;
                 }
+            } else {
+                videoCost = 0;
             }
 
-            // Add retouching cost if freelance
             if (retouchingFreelance) {
                 retouchingCost = numImages * 150;
+            } else {
+                retouchingCost = 0;
+            }
+            
+            glamArtistTotalCost = numGlamArtists * adjustedGlamArtistCostPerDay * (baseDuration + 1);
+
+            if (teamTravelNeeded) {
+                if (travelType === 'domestic') {
+                    teamTravelCost = numTravelers * (AVG_LA_NYC_FLIGHT + 800);
+                } else if (travelType === 'international') {
+                    teamTravelCost = numTravelers * (AVG_LA_LONDON_FLIGHT + 1000);
+                }
+            } else {
+                teamTravelCost = 0;
             }
 
-            // Calculate glam artist cost based on number of artists and duration
-            glamArtistTotalCost = numGlamArtists * glamArtistCostPerDay * (baseDuration + 1);
-
-            // Set production tier multiplier
             switch (productionTier) {
                 case 'low':
                     productionTierMultiplier = 0.75;
@@ -404,20 +526,100 @@
                     break;
             }
 
-            // Calculate costs:
             const totalShootDays = baseDuration + 1;
-            
-            // Total base shoot cost scaled by days (baseCostPerDay already adjusted by talent type, now it's multiplied by total days)
-            const totalBaseShootCost = baseCostPerDay * totalShootDays;
-            
-            // Total cost for talent/crew (baseCrew * crewCostPerUnitPerDay, where crewCostPerUnitPerDay reflects initial base and talentNumberMultiplier)
-            const totalTalentCrewCost = (baseCrew * crewCostPerUnitPerDay) * totalShootDays;
+            const dailyVariableCosts = (adjustedBaseCostPerDay + (baseCrew * adjustedCrewCostPerUnitPerDay)) * totalShootDays;
 
 
-            let totalCost = (totalBaseShootCost + totalTalentCrewCost + stylingCost + videoCost + retouchingCost + glamArtistTotalCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
+            let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
 
-            costDisplay.textContent = `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            // Store the raw totalCost and other details for summary download
+            lastCalculatedSummaryData = {
+                // Ensure all fields are correctly captured here for the summary
+                shootCategory: shootCategorySelect.options[shootCategorySelect.selectedIndex].text,
+                shootSubcategory: shootSubcategorySelect.options[shootSubcategorySelect.selectedIndex].text,
+                talentType: talentTypeSelect.options[talentTypeSelect.selectedIndex].text, // Fixed to use text
+                baseDuration: baseDuration,
+                location: document.getElementById('location').options[document.getElementById('location').selectedIndex].text, // Fixed to use text
+                locationType: locationTypeSelect.options[locationTypeSelect.selectedIndex].text, // Fixed to use text
+                baseCrew: baseCrew,
+                stylingType: document.getElementById('styling-type').options[document.getElementById('styling-type').selectedIndex].text, // Fixed to use text
+                videoNeeded: videoNeeded ? "Yes" : "No",
+                retouchingFreelance: retouchingFreelance ? "Yes" : "No",
+                numImages: retouchingFreelance ? numImages : 'N/A',
+                numGlamArtists: numGlamArtists,
+                teamTravelNeeded: teamTravelNeeded ? "Yes" : "No",
+                numTravelers: teamTravelNeeded ? numTravelers : 'N/A',
+                travelType: teamTravelNeeded && travelType ? document.querySelector(`label[for="travel-${travelType}"]`).textContent : 'N/A',
+                usageRights: document.getElementById('usage-rights').options[document.getElementById('usage-rights').selectedIndex].text, // Fixed to use text
+                productionTier: document.getElementById('production-tier').options[document.getElementById('production-tier').selectedIndex].text, // Fixed to use text
+                rawCalculatedCost: totalCost // Store the cost before rounding and range calculation
+            };
+
+
+            // Calculate range
+            const minCost = totalCost * 0.95; // -5%
+            const maxCost = totalCost * 1.05; // +5%
+
+            // Round minCost and maxCost to the nearest 500 after calculating the range
+            const roundedMinCost = Math.round(minCost / 500) * 500;
+            const roundedMaxCost = Math.round(maxCost / 500) * 500;
+
+            costDisplay.textContent = `$${roundedMinCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} - $${roundedMaxCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
             showMessage('Cost calculated successfully!', 'success');
+        });
+
+        // Function to generate and download the summary
+        downloadSummaryBtn.addEventListener('click', () => {
+            if (!lastCalculatedSummaryData.rawCalculatedCost) {
+                showMessage('Please calculate a cost first before downloading a summary.', 'error');
+                return;
+            }
+
+            // Re-calculate the final displayed range for the summary to ensure consistency
+            const finalTotalCost = Math.round(lastCalculatedSummaryData.rawCalculatedCost / 500) * 500;
+            const finalMinCost = Math.round((finalTotalCost * 0.95) / 500) * 500;
+            const finalMaxCost = Math.round((finalTotalCost * 1.05) / 500) * 500;
+
+
+            let summaryContent = `# Photo & Video Shoot Cost Estimate Summary\n\n`;
+            summaryContent += `--- Your Selections ---\n`;
+            summaryContent += `Shoot Category: ${lastCalculatedSummaryData.shootCategory}\n`;
+            summaryContent += `Shoot Subcategory: ${lastCalculatedSummaryData.shootSubcategory}\n`;
+            summaryContent += `Talent Type: ${lastCalculatedSummaryData.talentType}\n`;
+            summaryContent += `Base Duration (Days): ${lastCalculatedSummaryData.baseDuration}\n`;
+            summaryContent += `Location (Geo): ${lastCalculatedSummaryData.location}\n`;
+            summaryContent += `Location Type: ${lastCalculatedSummaryData.locationType}\n`;
+            summaryContent += `Base Number of Talent: ${lastCalculatedSummaryData.baseCrew}\n`;
+            summaryContent += `Styling Type: ${lastCalculatedSummaryData.stylingType}\n`;
+            summaryContent += `Video Needed: ${lastCalculatedSummaryData.videoNeeded}\n`;
+            summaryContent += `Retouching Freelance: ${lastCalculatedSummaryData.retouchingFreelance}\n`;
+            if (lastCalculatedSummaryData.retouchingFreelance === "Yes") {
+                summaryContent += `  - Estimated Number of Images: ${lastCalculatedSummaryData.numImages}\n`;
+            }
+            summaryContent += `Number of Glam Artists: ${lastCalculatedSummaryData.numGlamArtists}\n`;
+            summaryContent += `Team Travel Needed: ${lastCalculatedSummaryData.teamTravelNeeded}\n`;
+            if (lastCalculatedSummaryData.teamTravelNeeded === "Yes") {
+                summaryContent += `  - Number of People Traveling: ${lastCalculatedSummaryData.numTravelers}\n`;
+                summaryContent += `  - Travel Type: ${lastCalculatedSummaryData.travelType}\n`;
+            }
+            summaryContent += `Usage Rights: ${lastCalculatedSummaryData.usageRights}\n`;
+            summaryContent += `Overall Production Tier: ${lastCalculatedSummaryData.productionTier}\n\n`;
+            summaryContent += `--- Estimated Cost --- \n`;
+            summaryContent += `Cost Range: $${finalMinCost.toLocaleString('en-US')} - $${finalMaxCost.toLocaleString('en-US')}\n\n`;
+            summaryContent += `Disclaimer: ${document.getElementById('disclaimer').textContent}\n`;
+
+
+            const filename = `Shoot_Estimate_${new Date().toLocaleDateString()}.txt`;
+            const blob = new Blob([summaryContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(link.href); // Release object URL
+
+            showMessage('Summary downloaded successfully!', 'success');
         });
 
         // Initialize subcategories dropdown state
