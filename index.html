@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Photo & Video Shoot Cost Calculator</title>
-    <!-- Chosen Palette: Professional (Gray, Blue, Green) -->
-    <!-- Application Structure Plan: The SPA uses a single-column, top-to-bottom form structure, which is the most intuitive for a calculator-style application. The user logically proceeds from high-level shoot details to specific add-ons and final multipliers. Key interactive elements include a dynamic 'Shoot Subcategory' dropdown that populates based on the main 'Shoot Category' and conditional containers for 'Retouching' and 'Team Travel' that only only appear when selected. This prevents user confusion and keeps the UI clean. The flow is: User Input -> Calculation -> Result Display -> Optional Summary Download. This was chosen for its directness and simplicity, perfectly matching the task of generating a cost estimate. -->
-    <!-- Visualization & Content Choices: Report data is captured via interactive HTML form elements. GOAL: Capture categorical data -> METHOD: <select> dropdowns (e.g., Shoot Category, Talent Type). GOAL: Capture quantitative data -> METHOD: <input type="number"> (e.g., Base Duration, Number of Talent). GOAL: Capture binary choices -> METHOD: <input type="checkbox"> (e.g., Video Needed) and <input type="radio"> (e.g., Travel Type). GOAL: Display result -> METHOD: Update text content of a <p> tag. GOAL: Provide a take-away -> METHOD: JavaScript-generated text file download. This approach ensures all logic from the source document is implemented via user-friendly, standard web interactions. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -50,11 +46,9 @@
 
     <div class="container mx-auto max-w-4xl p-4 sm:p-8">
         <header class="text-center mb-10">
-            <!-- Company Logos -->
             <div class="flex justify-center items-center space-x-8 mb-4">
                 <img src="https://ep320204.github.io/shoot-calc/MarieClaireLogo.png" alt="Marie Claire" class="h-10 w-auto rounded-md">
-                <img src="https://ep320204.github.io/shoot-calc/WWW-logo-black-on-transparent.png" alt="WWW" class="h-7 w-auto rounded-md">
-            </div>
+                <img src="https://ep320204.github.io/shoot-calc/WWW-logo-black-on-transparent.png" alt="WWW" class="h-8 w-auto rounded-md"> </div>
             <h1 class="text-4xl text-gray-800 font-playfair-display uppercase">SHOOT COST CALCULATOR</h1>
             <p class="text-base text-gray-600 mt-2 font-montserrat">An interactive tool to forecast production budgets based on key creative and logistical factors.</p>
             <p class="mt-4 text-sm text-gray-500 font-montserrat">
@@ -65,7 +59,6 @@
         <main class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
             <form id="cost-calculator-form" class="space-y-6">
 
-                <!-- Shoot Details Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">1. Shoot Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -90,7 +83,6 @@
                     </div>
                 </div>
 
-                <!-- Talent Details Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">2. Talent Details</h2>
                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -113,8 +105,7 @@
                     </div>
                 </div>
 
-                 <!-- Location Details Section -->
-                <div class="border-b pb-6">
+                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">3. Location Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -141,11 +132,9 @@
                     </div>
                 </div>
 
-                <!-- Production Add-ons Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">4. Production Add-ons</h2>
                     <div class="space-y-6">
-                        <!-- Styling & Glam -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <label for="styling-type" class="block text-sm font-medium text-gray-700 font-montserrat">Styling</label>
@@ -162,7 +151,6 @@
                             </div>
                         </div>
 
-                        <!-- Video -->
                         <div class="toggle-container">
                             <div class="flex items-center space-x-2 mb-4">
                                 <input type="checkbox" id="video-needed" name="video-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
@@ -170,7 +158,6 @@
                             </div>
                         </div>
 
-                        <!-- Retouching -->
                         <div class="toggle-container">
                             <div class="flex items-center space-x-2 mb-4">
                                 <input type="checkbox" id="retouching-freelance" name="retouching-freelance" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
@@ -182,7 +169,6 @@
                             </div>
                         </div>
 
-                        <!-- Team Travel -->
                         <div class="toggle-container">
                              <div class="flex items-center space-x-2 mb-4">
                                 <input type="checkbox" id="team-travel-needed" name="team-travel-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
@@ -191,17 +177,17 @@
                             <div id="travel-options-container" class="mt-4 space-y-4" style="display: none;">
                                 <div>
                                     <label for="num-travelers" class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Number of People Traveling</label>
-                                    <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" required class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                    <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
                                 </div>
                                 <div>
                                      <label class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Travel Type</label>
                                      <div class="flex items-center space-x-4">
                                         <div class="flex items-center">
-                                            <input type="radio" id="travel-domestic" name="travel-type" value="domestic" required class="form-radio h-4 w-4 text-indigo-600">
+                                            <input type="radio" id="travel-domestic" name="travel-type" value="domestic" class="form-radio h-4 w-4 text-indigo-600">
                                             <label for="travel-domestic" class="ml-2 text-sm text-gray-700 font-montserrat">Domestic</label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input type="radio" id="travel-international" name="travel-type" value="international" required class="form-radio h-4 w-4 text-indigo-600">
+                                            <input type="radio" id="travel-international" name="travel-type" value="international" class="form-radio h-4 w-4 text-indigo-600">
                                             <label for="travel-international" class="ml-2 text-sm text-gray-700 font-montserrat">International</label>
                                         </div>
                                     </div>
@@ -211,8 +197,7 @@
                     </div>
                 </div>
 
-                 <!-- Final Multipliers Section -->
-                <div>
+                 <div>
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">5. Final Multipliers</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -229,7 +214,7 @@
                              <select id="production-tier" name="production-tier" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
                                 <option value="" disabled selected>Select Production Tier...</option>
                                 <option value="low">Low</option>
-                                <option value="mid">Mid</option>
+                                <option value="mid">Standard</option>
                                 <option value="high">High</option>
                             </select>
                         </div>
@@ -237,7 +222,6 @@
                 </div>
 
 
-                <!-- Submission Button -->
                 <div class="pt-5">
                     <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-montserrat">
                         Calculate Estimated Cost
@@ -246,7 +230,6 @@
             </form>
         </main>
 
-        <!-- Results Section -->
         <section id="results" class="mt-10 text-center">
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
                  <h2 class="text-lg font-medium text-gray-500 mb-2 font-montserrat">Estimated Cost Range</h2>
@@ -260,7 +243,6 @@
 
     </div>
 
-    <!-- JavaScript Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const costCalculatorForm = document.getElementById('cost-calculator-form');
@@ -316,13 +298,17 @@
             teamTravelNeededCheckbox.addEventListener('change', (e) => {
                 travelOptionsContainer.style.display = e.target.checked ? 'block' : 'none';
                 if(numTravelersInput) numTravelersInput.required = e.target.checked;
-                if(travelDomesticRadio) travelDomesticRadio.required = e.target.checked;
-                if(travelInternationalRadio) travelInternationalRadio.required = e.target.checked;
+                // Radio buttons should only be required if the section is visible AND they are part of the validation
+                // Removed inline 'required' from HTML and setting it explicitly here
+                travelDomesticRadio.required = e.target.checked;
+                travelInternationalRadio.required = e.target.checked;
 
                  if (!e.target.checked) {
                     if(numTravelersInput) numTravelersInput.value = 1;
-                    if(travelDomesticRadio) travelDomesticRadio.checked = false;
-                    if(travelInternationalRadio) travelInternationalRadio.checked = false;
+                    travelDomesticRadio.checked = false;
+                    travelInternationalRadio.checked = false;
+                    travelDomesticRadio.required = false; // Ensure required is false when hidden
+                    travelInternationalRadio.required = false; // Ensure required is false when hidden
                 }
             });
 
@@ -355,8 +341,8 @@
                     { id: 'talent-type', label: 'Primary Talent Type', value: data['talent-type'] },
                     { id: 'base-duration', label: 'Shoot Duration (Days)', value: data['base-duration'], isNumeric: true },
                     { id: 'location', label: 'Geographic Location', value: data.location },
-                    { id: 'location-type', label: 'Location Type', value: data['location-type'] },
-                    { id: 'base-crew', label: 'Number of Talent', value: data['base-crew'], isNumeric: true },
+                    { id: 'location-type', label: 'Location Type', value: data['location-type'] }, // Updated label
+                    { id: 'base-crew', label: 'Number of Talent', value: data['base-crew'], isNumeric: true }, // Updated label
                     { id: 'styling-type', label: 'Styling', value: data['styling-type'] },
                     { id: 'num-glam-artists', label: 'Number of Glam Artists', value: data['num-glam-artists'], isNumeric: true },
                     { id: 'usage-rights', label: 'Usage Rights', value: data['usage-rights'] },
@@ -412,6 +398,8 @@
 
                 const AVG_LA_NYC_FLIGHT = 250;
                 const AVG_LA_LONDON_FLIGHT = 450;
+
+                const shootType = `${data['shoot-category']}-${data['shoot-subcategory']}`; // Define shootType here
 
                 switch (shootType) {
                     case 'Editorial-Cover': baseCostPerDay = 7000; break;
@@ -499,9 +487,9 @@
                 let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
                 
                 lastCalculatedSummaryData = {
-                    shootCategory: shootCategorySelect.options[shootCategorySelect.selectedIndex].text,
-                    shootSubcategory: shootSubcategorySelect.options[shootSubcategorySelect.selectedIndex].text,
-                    talentType: talentTypeSelect.options[talentTypeSelect.selectedIndex].text,
+                    shootCategory: document.getElementById('shoot-category').options[document.getElementById('shoot-category').selectedIndex].text,
+                    shootSubcategory: document.getElementById('shoot-subcategory').options[document.getElementById('shoot-subcategory').selectedIndex].text,
+                    talentType: document.getElementById('talent-type').options[document.getElementById('talent-type').selectedIndex].text,
                     baseDuration: baseDuration,
                     location: document.getElementById('location').options[document.getElementById('location').selectedIndex].text,
                     locationType: locationTypeSelect.options[locationTypeSelect.selectedIndex].text,
