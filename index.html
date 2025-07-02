@@ -395,8 +395,8 @@
                 let talentNumberMultiplier = 1;
                 let usageRightsMultiplier = 1;
 
-                const AVG_LA_NYC_FLIGHT = 250;
-                const AVG_LA_LONDON_FLIGHT = 450;
+                const AVG_LA_NYC_FLIGHT = 450;
+                const AVG_LA_LONDON_FLIGHT = 750;
 
                 const shootType = `${data['shoot-category']}-${data['shoot-subcategory']}`; // Define shootType here
 
@@ -417,7 +417,7 @@
                     case 'Model': baseCostPerDay = 5000; crewCostPerUnitPerDay = 1000; break;
                     case 'Influencer': baseCostPerDay = 7000; crewCostPerUnitPerDay = 1000; break;
                     case 'Editor': baseCostPerDay = 1000; crewCostPerUnitPerDay = 1000; break;
-                    case 'NA': baseCostPerDay *= 0.05; crewCostPerUnitPerDay = 1000; break;
+                    case 'NA': baseCostPerDay *= 1; crewCostPerUnitPerDay = 1000; break;
                 }
 
                 const baseCrew = parseFloat(data['base-crew']);
@@ -439,7 +439,7 @@
                     case 'Studio': locationTypeMultiplier = 0.5; break;
                     case 'Outdoor Location': locationTypeMultiplier = 1.1; break;
                     case 'Indoor Location': locationTypeMultiplier = 1.0; break;
-                    case 'Street Style': locationTypeMultiplier = 0.8; break;
+                    case 'Street Style': locationTypeMultiplier = 0.7; break;
                 }
 
                 const baseDuration = parseFloat(data['base-duration']);
@@ -450,7 +450,7 @@
                 let adjustedGlamArtistCostPerDay = glamArtistCostPerDay * locationTypeMultiplier;
 
                 if (data['styling-type'] === 'freelance') stylingCost = 3500 * totalShootDays;
-                else if (data['styling-type'] === 'market-only') stylingCost = 400;
+                else if (data['styling-type'] === 'market-only') stylingCost = 800;
                 
                 if (document.getElementById('video-needed').checked) {
                     switch (shootType) {
