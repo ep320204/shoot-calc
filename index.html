@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Photo & Video Shoot Cost Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Professional (Gray, Blue, Green) -->
+    <!-- Application Structure Plan: The SPA uses a single-column, top-to-bottom form structure, which is the most intuitive for a calculator-style application. The user logically proceeds from high-level shoot details to specific add-ons and final multipliers. Key interactive elements include a dynamic 'Shoot Subcategory' dropdown that populates based on the main 'Shoot Category' and conditional containers for 'Retouching' and 'Team Travel' that only only appear when selected. This prevents user confusion and keeps the UI clean. The flow is: User Input -> Calculation -> Result Display -> Optional Summary Download. This was chosen for its directness and simplicity, perfectly matching the task of generating a cost estimate. -->
+    <!-- Visualization & Content Choices: Report data is captured via interactive HTML form elements. GOAL: Capture categorical data -> METHOD: <select> dropdowns (e.g., Shoot Category, Talent Type). GOAL: Capture quantitative data -> METHOD: <input type="number"> (e.g., Base Duration, Number of Talent). GOAL: Capture binary choices -> METHOD: <input type="checkbox"> (e.g., Video Needed) and <input type="radio"> (e.g., Travel Type). GOAL: Display result -> METHOD: Update text content of a <p> tag. GOAL: Provide a take-away -> METHOD: JavaScript-generated text file download. This approach ensures all logic from the source document is implemented via user-friendly, standard web interactions. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom font definitions for Tailwind */
@@ -58,6 +62,7 @@
         <main class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
             <form id="cost-calculator-form" class="space-y-6">
 
+                <!-- Shoot Details Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">1. Shoot Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,6 +87,7 @@
                     </div>
                 </div>
 
+                <!-- Talent Details Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">2. Talent Details</h2>
                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -104,7 +110,8 @@
                     </div>
                 </div>
 
-                 <div class="border-b pb-6">
+                 <!-- Location Details Section -->
+                <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">3. Location Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -131,9 +138,11 @@
                     </div>
                 </div>
 
+                <!-- Production Add-ons Section -->
                 <div class="border-b pb-6">
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">4. Production Add-ons</h2>
                     <div class="space-y-6">
+                        <!-- Styling & Glam -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <label for="styling-type" class="block text-sm font-medium text-gray-700 font-montserrat">Styling</label>
@@ -150,13 +159,19 @@
                             </div>
                         </div>
 
+                        <!-- Video -->
                         <div class="toggle-container">
-                            <div class="flex items-center space-x-2 mb-4">
-                                <input type="checkbox" id="video-needed" name="video-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
-                                <label for="video-needed" class="block text-sm font-medium text-gray-700 font-montserrat">Video Needed?</label>
-                            </div>
+                            <label for="video-type" class="block text-sm font-medium text-gray-700 font-montserrat mb-2">Video Type</label>
+                            <select id="video-type" name="video-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Video Option...</option>
+                                <option value="no-video">No Video</option>
+                                <option value="social-capture">Social Capture</option>
+                                <option value="single-camera">Single Camera</option>
+                                <option value="multi-camera">Multi-Camera</option>
+                            </select>
                         </div>
 
+                        <!-- Retouching -->
                         <div class="toggle-container">
                             <div class="flex items-center space-x-2 mb-4">
                                 <input type="checkbox" id="retouching-freelance" name="retouching-freelance" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
@@ -168,6 +183,18 @@
                             </div>
                         </div>
 
+                        <!-- Set Design -->
+                        <div class="toggle-container">
+                            <label for="set-design-type" class="block text-sm font-medium text-gray-700 font-montserrat mb-2">Set Design</label>
+                            <select id="set-design-type" name="set-design-type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                <option value="" disabled selected>Select Set Design Option...</option>
+                                <option value="no-set-design">No Set Design</option>
+                                <option value="prop-stylist">Prop Stylist (Day Rate and Expenses)</option>
+                                <option value="set-designer">Set Designer</option>
+                            </select>
+                        </div>
+
+                        <!-- Team Travel -->
                         <div class="toggle-container">
                              <div class="flex items-center space-x-2 mb-4">
                                 <input type="checkbox" id="team-travel-needed" name="team-travel-needed" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
@@ -176,7 +203,7 @@
                             <div id="travel-options-container" class="mt-4 space-y-4" style="display: none;">
                                 <div>
                                     <label for="num-travelers" class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Number of People Traveling</label>
-                                    <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
+                                    <input type="number" id="num-travelers" name="num-travelers" min="1" value="1" required class="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
                                 </div>
                                 <div>
                                      <label class="block text-xs font-medium text-gray-500 font-montserrat mb-1">Travel Type</label>
@@ -196,7 +223,8 @@
                     </div>
                 </div>
 
-                 <div>
+                 <!-- Final Multipliers Section -->
+                <div>
                     <h2 class="text-xl font-semibold text-gray-700 mb-4 font-montserrat">5. Final Multipliers</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -211,9 +239,8 @@
                         <div>
                              <label for="production-tier" class="block text-sm font-medium text-gray-700 font-montserrat">Overall Production Tier</label>
                              <select id="production-tier" name="production-tier" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-montserrat">
-                                <option value="" disabled selected>Select Production Tier...</option>
                                 <option value="low">Low</option>
-                                <option value="mid">Standard</option>
+                                <option value="mid" selected>Standard</option>
                                 <option value="high">High</option>
                             </select>
                         </div>
@@ -221,6 +248,7 @@
                 </div>
 
 
+                <!-- Submission Button -->
                 <div class="pt-5">
                     <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-montserrat">
                         Calculate Estimated Cost
@@ -229,6 +257,7 @@
             </form>
         </main>
 
+        <!-- Results Section -->
         <section id="results" class="mt-10 text-center">
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
                  <h2 class="text-lg font-medium text-gray-500 mb-2 font-montserrat">Estimated Cost Range</h2>
@@ -242,6 +271,7 @@
 
     </div>
 
+    <!-- JavaScript Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const costCalculatorForm = document.getElementById('cost-calculator-form');
@@ -263,6 +293,8 @@
             const travelDomesticRadio = document.getElementById('travel-domestic');
             const travelInternationalRadio = document.getElementById('travel-international');
             const locationTypeSelect = document.getElementById('location-type');
+            const videoTypeSelect = document.getElementById('video-type'); // New: Video Type select
+            const setDesignTypeSelect = document.getElementById('set-design-type'); // New: Set Design Type select
 
 
             let lastCalculatedSummaryData = {};
@@ -272,13 +304,14 @@
                 "Branded": ["Regular-Client", "High-Touch-Client", "Still-Life"]
             };
 
-            shootCategorySelect.addEventListener('change', (e) => {
-                const selectedCategory = e.target.value;
+            // This function definition needs to be before its first call
+            function populateSubcategories(category) {
+                // Clear existing options
                 shootSubcategorySelect.innerHTML = '<option value="" disabled selected>Select a Subcategory...</option>';
                 shootSubcategorySelect.disabled = true;
 
-                if (selectedCategory && subcategories[selectedCategory]) {
-                    subcategories[selectedCategory].forEach(sub => {
+                if (category && subcategories[category]) {
+                    subcategories[category].forEach(sub => {
                         const option = document.createElement('option');
                         option.value = sub;
                         option.textContent = sub;
@@ -286,7 +319,17 @@
                     });
                     shootSubcategorySelect.disabled = false;
                 }
+            }
+
+
+            shootCategorySelect.addEventListener('change', (e) => {
+                const selectedCategory = e.target.value;
+                populateSubcategories(selectedCategory);
             });
+
+            // Initial population on DOMContentLoaded
+            populateSubcategories(shootCategorySelect.value);
+
 
             retouchingFreelanceCheckbox.addEventListener('change', (e) => {
                 numImagesContainer.style.display = e.target.checked ? 'block' : 'none';
@@ -297,8 +340,7 @@
             teamTravelNeededCheckbox.addEventListener('change', (e) => {
                 travelOptionsContainer.style.display = e.target.checked ? 'block' : 'none';
                 if(numTravelersInput) numTravelersInput.required = e.target.checked;
-                // Radio buttons should only be required if the section is visible AND they are part of the validation
-                // Removed inline 'required' from HTML and setting it explicitly here
+                // Dynamically set required for radio buttons when their container is visible
                 travelDomesticRadio.required = e.target.checked;
                 travelInternationalRadio.required = e.target.checked;
 
@@ -340,10 +382,12 @@
                     { id: 'talent-type', label: 'Primary Talent Type', value: data['talent-type'] },
                     { id: 'base-duration', label: 'Shoot Duration (Days)', value: data['base-duration'], isNumeric: true },
                     { id: 'location', label: 'Geographic Location', value: data.location },
-                    { id: 'location-type', label: 'Location Type', value: data['location-type'] }, // Updated label
-                    { id: 'base-crew', label: 'Number of Talent', value: data['base-crew'], isNumeric: true }, // Updated label
+                    { id: 'location-type', label: 'Location Type', value: data['location-type'] },
+                    { id: 'base-crew', label: 'Number of Talent', value: data['base-crew'], isNumeric: true },
                     { id: 'styling-type', label: 'Styling', value: data['styling-type'] },
                     { id: 'num-glam-artists', label: 'Number of Glam Artists', value: data['num-glam-artists'], isNumeric: true },
+                    { id: 'video-type', label: 'Video Type', value: data['video-type'] }, // New: Video Type validation
+                    { id: 'set-design-type', label: 'Set Design', value: data['set-design-type'] }, // New: Set Design Type validation
                     { id: 'usage-rights', label: 'Usage Rights', value: data['usage-rights'] },
                     { id: 'production-tier', label: 'Overall Production Tier', value: data['production-tier'] }
                 ];
@@ -391,14 +435,16 @@
                 let retouchingCost = 0;
                 let glamArtistTotalCost = 0;
                 let teamTravelCost = 0;
+                let setDesignCost = 0; // New: Initialize set design cost
                 let productionTierMultiplier = 1;
                 let talentNumberMultiplier = 1;
                 let usageRightsMultiplier = 1;
+                let clientTypeMultiplier = 1;
 
-                const AVG_LA_NYC_FLIGHT = 450;
-                const AVG_LA_LONDON_FLIGHT = 750;
+                const AVG_LA_NYC_FLIGHT = 250;
+                const AVG_LA_LONDON_FLIGHT = 450;
 
-                const shootType = `${data['shoot-category']}-${data['shoot-subcategory']}`; // Define shootType here
+                const shootType = `${data['shoot-category']}-${data['shoot-subcategory']}`;
 
                 switch (shootType) {
                     case 'Editorial-Cover': baseCostPerDay = 7000; break;
@@ -406,18 +452,18 @@
                     case 'Editorial-Portrait': baseCostPerDay = 0; break;
                     case 'Editorial-Spotlight': baseCostPerDay = 4000; break;
                     case 'Editorial-Still-Life': baseCostPerDay = 3000; break;
-                    case 'Branded-Regular-Client': baseCostPerDay = 6000; break;
-                    case 'Branded-High-Touch-Client': baseCostPerDay = 8000; break;
+                    case 'Branded-Regular-Client': baseCostPerDay = 5000; break;
+                    case 'Branded-High-Touch-Client': baseCostPerDay = 7000; break; // This will be overridden by clientTypeMultiplier
                     case 'Branded-Still-Life': baseCostPerDay = 4000; break;
                 }
 
                 switch (data['talent-type']) {
                     case 'Celebrity': baseCostPerDay *= 1.3; crewCostPerUnitPerDay *= 1.3; break;
                     case 'A-List': baseCostPerDay *= 1.5; crewCostPerUnitPerDay *= 1.5; break;
-                    case 'Model': baseCostPerDay = 5000; crewCostPerUnitPerDay = 3000; break;
-                    case 'Influencer': baseCostPerDay = 7000; crewCostPerUnitPerDay = 3000; break;
-                    case 'Editor': baseCostPerDay = 1000; crewCostPerUnitPerDay = 2000; break;
-                    case 'NA': baseCostPerDay *= 1; crewCostPerUnitPerDay = 1000; break;
+                    case 'Model': baseCostPerDay = 5000; crewCostPerUnitPerDay = 1000; break;
+                    case 'Influencer': baseCostPerDay = 7000; crewCostPerUnitPerDay = 1000; break;
+                    case 'Editor': baseCostPerDay = 1000; crewCostPerUnitPerDay = 1000; break;
+                    case 'NA': baseCostPerDay *= 0.05; crewCostPerUnitPerDay = 1000; break;
                 }
 
                 const baseCrew = parseFloat(data['base-crew']);
@@ -439,7 +485,7 @@
                     case 'Studio': locationTypeMultiplier = 0.5; break;
                     case 'Outdoor Location': locationTypeMultiplier = 1.1; break;
                     case 'Indoor Location': locationTypeMultiplier = 1.0; break;
-                    case 'Street Style': locationTypeMultiplier = 0.7; break;
+                    case 'Street Style': locationTypeMultiplier = 0.8; break;
                 }
 
                 const baseDuration = parseFloat(data['base-duration']);
@@ -450,19 +496,27 @@
                 let adjustedGlamArtistCostPerDay = glamArtistCostPerDay * locationTypeMultiplier;
 
                 if (data['styling-type'] === 'freelance') stylingCost = 3500 * totalShootDays;
-                else if (data['styling-type'] === 'market-only') stylingCost = 800;
+                else if (data['styling-type'] === 'market-only') stylingCost = 400;
                 
-                if (document.getElementById('video-needed').checked) {
-                    switch (shootType) {
-                        case 'Editorial-Cover': case 'Editorial-Story': case 'Branded-Regular-Client': videoCost = 6500; break;
-                        case 'Editorial-Portrait': videoCost = 800; break;
-                        case 'Branded-High-Touch-Client': videoCost = 8000; break;
-                    }
+                // Video Cost based on videoType dropdown
+                switch (document.getElementById('video-type').value) {
+                    case 'no-video': videoCost = 0; break;
+                    case 'social-capture': videoCost = 1500; break;
+                    case 'single-camera': videoCost = 6500; break;
+                    case 'multi-camera': videoCost = 10000; break;
                 }
                 
                 if (retouchingFreelance) retouchingCost = parseFloat(data['num-images']) * 150;
                 
                 glamArtistTotalCost = parseFloat(data['num-glam-artists']) * adjustedGlamArtistCostPerDay * totalShootDays;
+
+                // Set Design Cost
+                switch (document.getElementById('set-design-type').value) {
+                    case 'no-set-design': setDesignCost = 0; break;
+                    case 'prop-stylist': setDesignCost = 2500; break;
+                    case 'set-designer': setDesignCost = 5500; break;
+                }
+                setDesignCost *= locationTypeMultiplier; // Apply location type multiplier to set design cost
 
                 if (teamTravelNeeded) {
                     if (data['travel-type'] === 'domestic') teamTravelCost = numTravelers * (AVG_LA_NYC_FLIGHT + 800);
@@ -482,22 +536,33 @@
                     case 'assignment': usageRightsMultiplier = 1.5; break;
                 }
 
+                // Apply clientTypeMultiplier based on branded subcategory
+                if (data['shoot-category'] === 'Branded') {
+                    switch (data['shoot-subcategory']) {
+                        case 'Regular-Client': clientTypeMultiplier = 1.0; break;
+                        case 'High-Touch-Client': clientTypeMultiplier = 1.2; break;
+                        // For 'Still-Life' under Branded, it will default to 1.0 if not explicitly set here
+                    }
+                }
+
+
                 const dailyVariableCosts = (adjustedBaseCostPerDay + (baseCrew * adjustedCrewCostPerUnitPerDay)) * totalShootDays;
-                let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier;
+                let totalCost = (dailyVariableCosts + stylingCost + videoCost + retouchingCost + glamArtistTotalCost + teamTravelCost + setDesignCost) * usageRightsMultiplier * locationMultiplier * productionTierMultiplier * clientTypeMultiplier;
                 
                 lastCalculatedSummaryData = {
-                    shootCategory: document.getElementById('shoot-category').options[document.getElementById('shoot-category').selectedIndex].text,
-                    shootSubcategory: document.getElementById('shoot-subcategory').options[document.getElementById('shoot-subcategory').selectedIndex].text,
-                    talentType: document.getElementById('talent-type').options[document.getElementById('talent-type').selectedIndex].text,
+                    shootCategory: shootCategorySelect.options[shootCategorySelect.selectedIndex].text,
+                    shootSubcategory: shootSubcategorySelect.options[shootSubcategorySelect.selectedIndex].text,
+                    talentType: talentTypeSelect.options[talentTypeSelect.selectedIndex].text,
                     baseDuration: baseDuration,
                     location: document.getElementById('location').options[document.getElementById('location').selectedIndex].text,
                     locationType: locationTypeSelect.options[locationTypeSelect.selectedIndex].text,
                     baseCrew: baseCrew,
                     stylingType: document.getElementById('styling-type').options[document.getElementById('styling-type').selectedIndex].text,
-                    videoNeeded: document.getElementById('video-needed').checked ? "Yes" : "No",
+                    videoNeeded: document.getElementById('video-type').options[document.getElementById('video-type').selectedIndex].text, // Changed to use videoType dropdown text
                     retouchingFreelance: retouchingFreelance ? "Yes" : "No",
                     numImages: retouchingFreelance ? parseFloat(data['num-images']) : 'N/A',
                     numGlamArtists: parseFloat(data['num-glam-artists']),
+                    setDesignType: document.getElementById('set-design-type').options[document.getElementById('set-design-type').selectedIndex].text, // New: Set Design Type for summary
                     teamTravelNeeded: document.getElementById('team-travel-needed').checked ? "Yes" : "No",
                     numTravelers: document.getElementById('team-travel-needed').checked ? parseFloat(data['num-travelers']) : 'N/A',
                     travelType: document.getElementById('team-travel-needed').checked && document.querySelector('input[name="travel-type"]:checked') ? document.querySelector('input[name="travel-type"]:checked').nextElementSibling.textContent : 'N/A',
@@ -538,6 +603,7 @@
                 summaryContent += `Video Needed: ${lastCalculatedSummaryData.videoNeeded}\n`;
                 if(lastCalculatedSummaryData.retouchingFreelance === "Yes") summaryContent += `  - Estimated Number of Images: ${lastCalculatedSummaryData.numImages}\n`;
                 summaryContent += `Number of Glam Artists: ${lastCalculatedSummaryData.numGlamArtists}\n`;
+                summaryContent += `Set Design Type: ${lastCalculatedSummaryData.setDesignType}\n`; // New: Set Design Type for summary
                 summaryContent += `Team Travel Needed: ${lastCalculatedSummaryData.teamTravelNeeded}\n`;
                 if(lastCalculatedSummaryData.teamTravelNeeded === "Yes") {
                     summaryContent += `  - Number of People Traveling: ${lastCalculatedSummaryData.numTravelers}\n`;
